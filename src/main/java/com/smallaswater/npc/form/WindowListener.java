@@ -6,10 +6,10 @@ import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.player.PlayerServerSettingsRequestEvent;
-import cn.nukkit.event.server.DataPacketReceiveEvent;
+import cn.nukkit.event.server.PacketReceiveEvent;
 import cn.nukkit.form.window.Form;
-import cn.nukkit.network.protocol.NPCRequestPacket;
-import cn.nukkit.network.protocol.ServerSettingsResponsePacket;
+import org.cloudburstmc.protocol.bedrock.packet.NpcRequestPacket;
+import org.cloudburstmc.protocol.bedrock.packet.ServerSettingsResponsePacket;
 import com.smallaswater.npc.RsNPC;
 import com.smallaswater.npc.form.windows.AdvancedFormWindowDialog;
 
@@ -26,9 +26,9 @@ import java.util.Map;
 public class WindowListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onDataPacketReceive(DataPacketReceiveEvent event) {
-        if (event.getPacket() instanceof NPCRequestPacket) {
-            if (AdvancedFormWindowDialog.onEvent((NPCRequestPacket) event.getPacket(), event.getPlayer())) {
+    public void onDataPacketReceive(PacketReceiveEvent event) {
+        if (event.getPacket() instanceof NpcRequestPacket) {
+            if (AdvancedFormWindowDialog.onEvent((NpcRequestPacket) event.getPacket(), event.getPlayer())) {
                 event.setCancelled(true);
             }
         }
@@ -59,9 +59,9 @@ public class WindowListener implements Listener {
         Server.getInstance().getScheduler().scheduleDelayedTask(RsNPC.getInstance(), () -> {
             for (Map.Entry<Integer, Form<?>> entry : map.entrySet()) {
                 ServerSettingsResponsePacket pk = new ServerSettingsResponsePacket();
-                pk.formId = entry.getKey();
-                pk.data = entry.getValue().toJson();
-                player.dataPacket(pk);
+                pk.setFormID(entry.getKey());
+                pk.setFormData(entry.getValue().toJson());
+                player.sendPacket(pk);
             }
         }, 20);
     }

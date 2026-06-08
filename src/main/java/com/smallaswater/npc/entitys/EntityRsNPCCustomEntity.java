@@ -1,19 +1,22 @@
 package com.smallaswater.npc.entitys;
 
 import cn.nukkit.Player;
-import cn.nukkit.entity.data.EntityDataTypes;
-import cn.nukkit.entity.data.Skin;
+import cn.nukkit.entity.data.human.Skin;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.format.IChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
-import cn.nukkit.network.protocol.AddEntityPacket;
-import cn.nukkit.network.protocol.DataPacket;
-import cn.nukkit.network.protocol.SetEntityLinkPacket;
-import cn.nukkit.network.protocol.types.EntityLink;
 import cn.nukkit.registry.Registries;
 import com.smallaswater.npc.data.RsNpcConfig;
 import com.smallaswater.npc.variable.VariableManage;
 import lombok.NonNull;
+import org.cloudburstmc.math.vector.Vector2f;
+import org.cloudburstmc.math.vector.Vector3f;
+import org.cloudburstmc.protocol.bedrock.data.ActorLinkType;
+import org.cloudburstmc.protocol.bedrock.data.actor.ActorDataTypes;
+import org.cloudburstmc.protocol.bedrock.data.actor.ActorLink;
+import org.cloudburstmc.protocol.bedrock.packet.AddActorPacket;
+import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket;
+import org.cloudburstmc.protocol.bedrock.packet.SetActorLinkPacket;
 
 /**
  * 基于自定义实体功能实现的RsNPC实体
@@ -47,23 +50,23 @@ public class EntityRsNPCCustomEntity extends EntityRsNPC {
     }
 
     public void setSkinId(int skinId) {
-        this.namedTag.putInt("skinId", skinId);
+        this.getNbt().putInt("skinId", skinId);
         this.setDataProperty(
-                EntityDataTypes.SKIN_ID,
-                this.namedTag.getInt("skinId")
+                ActorDataTypes.SKIN_ID,
+                this.getNbt().getInt("skinId")
         );
     }
 
     public int getSkinId() {
-        return this.namedTag.getInt("skinId");
+        return this.getNbt().getInt("skinId");
     }
 
     @Override
     protected void initEntity() {
         super.initEntity();
         this.setDataProperty(
-                EntityDataTypes.SKIN_ID,
-                this.namedTag.getInt("skinId")
+                ActorDataTypes.SKIN_ID,
+                this.getNbt().getInt("skinId")
         );
     }
 
@@ -76,52 +79,45 @@ public class EntityRsNPCCustomEntity extends EntityRsNPC {
     public void spawnTo(Player player) {
         if (!this.hasSpawned.containsKey(player.getLoaderId()) && this.chunk != null && player.getUsedChunks().contains(Level.chunkHash(this.chunk.getX(), this.chunk.getZ()))) {
             this.hasSpawned.put(player.getLoaderId(), player);
-            player.dataPacket(createAddEntityPacket(player));
+            player.sendPacket(createAddEntityPacket(player));
         }
 
         if (this.riding != null) {
             this.riding.spawnTo(player);
 
-            SetEntityLinkPacket pk = new SetEntityLinkPacket();
-            pk.vehicleUniqueId = this.riding.getId();
-            pk.riderUniqueId = this.getId();
-            pk.type = EntityLink.Type.RIDER;
-            pk.immediate = 1;
+            SetActorLinkPacket pk = new SetActorLinkPacket();
+            pk.setLink(new ActorLink(this.riding.getId(), this.getId(), ActorLinkType.RIDING, true, false, 0f));
 
-            player.dataPacket(pk);
+            player.sendPacket(pk);
         }
     }
 
     @Override
-    public DataPacket createAddEntityPacket() {
-        AddEntityPacket addEntity = new AddEntityPacket();
-        addEntity.type = this.getNetworkId();
-        addEntity.entityUniqueId = this.getId();
-        addEntity.id = this.getIdentifier();
-        addEntity.entityRuntimeId = this.getId();
-        addEntity.yaw = (float) this.yaw;
-        addEntity.headYaw = (float) this.yaw;
-        addEntity.pitch = (float) this.pitch;
-        addEntity.x = (float) this.x;
-        addEntity.y = (float) this.y + this.getBaseOffset();
-        addEntity.z = (float) this.z;
-        addEntity.speedX = (float) this.motionX;
-        addEntity.speedY = (float) this.motionY;
-        addEntity.speedZ = (float) this.motionZ;
-        addEntity.entityData = this.entityDataMap;
+    public BedrockPacket createAddEntityPacket() {
+        AddActorPacket addEntity = new AddActorPacket();
+        addEntity.setEntityType(this.getNetworkId());
+        addEntity.setTargetActorID(this.getId());
+        addEntity.setActorType(this.getIdentifier());
+        addEntity.setTargetRuntimeID(this.getId());
+        addEntity.setRotation(Vector2f.from((float) this.pitch, (float) this.yaw));
+        addEntity.setHeadRotation((float) this.yaw);
+        addEntity.setBodyRotation((float) this.yaw);
+        addEntity.setPosition(Vector3f.from((float) this.x, (float) this.y + this.getBaseOffset(), (float) this.z));
+        addEntity.setVelocity(Vector3f.from((float) this.motionX, (float) this.motionY, (float) this.motionZ));
+        addEntity.setActorData(this.actorDataMap);
 
-        addEntity.links = new EntityLink[this.passengers.size()];
-        for (int i = 0; i < addEntity.links.length; i++) {
-            addEntity.links[i] = new EntityLink(this.getId(), this.passengers.get(i).getId(), i == 0 ? EntityLink.Type.RIDER : EntityLink.Type.PASSENGER, false, false);
+        for (int i = 0; i < this.passengers.size(); i++) {
+            addEntity.getActorLinks().add(new ActorLink(this.getId(), this.passengers.get(i).getId(),
+                    i == 0 ? ActorLinkType.RIDING : ActorLinkType.PASSENGER, false, false, 0f));
         }
 
         return addEntity;
     }
 
-    public DataPacket createAddEntityPacket(Player player) {
-        AddEntityPacket pk = (AddEntityPacket) this.createAddEntityPacket();
-        pk.entityData.putType(
-                EntityDataTypes.NAME,
+    public BedrockPacket createAddEntityPacket(Player player) {
+        AddActorPacket pk = (AddActorPacket) this.createAddEntityPacket();
+        pk.getActorData().putType(
+                ActorDataTypes.NAME,
                 VariableManage.stringReplace(player, this.getNameTag(), this.getConfig())
         );
         return pk;

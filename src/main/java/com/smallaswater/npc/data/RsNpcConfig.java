@@ -3,13 +3,12 @@ package com.smallaswater.npc.data;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.entity.Entity;
-import cn.nukkit.entity.data.Skin;
+import cn.nukkit.entity.data.human.Skin;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
-import cn.nukkit.registry.EntityRegistry;
 import cn.nukkit.registry.Registries;
 import cn.nukkit.utils.Config;
 import com.smallaswater.npc.RsNPC;
@@ -276,9 +275,8 @@ public class RsNpcConfig {
             this.customEntityIdentifier = this.config.getString("CustomEntity.identifier", "RsNPC:Demo");
             this.customEntitySkinId = this.config.getInt("CustomEntity.skinId", 0);
             if (this.enableCustomEntity && Registries.ENTITY.getEntityNetworkId(this.customEntityIdentifier) == 0) {
-                Registries.ENTITY.registerCustomEntity(RsNPC.getInstance(),
-                        new EntityRegistry.CustomEntityDefinition(this.customEntityIdentifier, "", false, true),
-                        EntityRsNPC.class);
+                // b-migration: registerCustomEntity 不再接受运行时 id，实体定义由 EntityRsNPC.definition() 提供。
+                Registries.ENTITY.registerCustomEntity(RsNPC.getInstance(), EntityRsNPC.class);
             }
         } catch (Exception e) {
             throw new RsNpcConfigLoadException("NPC config `CustomEntity` failed to load! Please check the config file!", e);
@@ -369,8 +367,8 @@ public class RsNpcConfig {
                 CompoundTag nbt = Entity.getDefaultNBT(location)
                         .putString("rsnpcName", this.name)
                         .putCompound("Skin", (new CompoundTag())
-                                .putByteArray("Data", this.skin.getSkinData().data)
-                                .putString("ModelId", this.skin.getSkinId()));
+                                .putByteArray("Data", this.skin.getSkin().getSkinData().getImage())
+                                .putString("ModelId", this.skin.getSkin().getSkinId()));
                 if (this.enableCustomEntity && this.customEntityIdentifier != null) {
                     nbt.putInt("skinId", this.customEntitySkinId);
                     this.entityRsNpc = new EntityRsNPCCustomEntity(this.location.getChunk(), nbt, this);

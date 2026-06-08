@@ -2,10 +2,9 @@ package com.smallaswater.npc;
 
 import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
-import cn.nukkit.entity.data.Skin;
+import cn.nukkit.entity.data.human.Skin;
 import cn.nukkit.level.Level;
 import cn.nukkit.plugin.PluginBase;
-import cn.nukkit.registry.EntityRegistry;
 import cn.nukkit.registry.RegisterException;
 import cn.nukkit.registry.Registries;
 import cn.nukkit.utils.Config;
@@ -71,12 +70,12 @@ public class RsNPC extends PluginBase {
     private static final Skin DEFAULT_SKIN;
 
     static {
-        Skin skin = new Skin();
+        SkinBuilder skin = new SkinBuilder();
         skin.setGeometryData(STEVE_GEOMETRY);
         skin.setGeometryName("geometry.humanoid.custom");
         skin.setSkinId("Standard_Custom");
         skin.setSkinData(Base64.getDecoder().decode(STEVE_SKIN));
-        DEFAULT_SKIN = skin;
+        DEFAULT_SKIN = skin.build();
     }
 
     public static RsNPC getInstance() {
@@ -120,7 +119,7 @@ public class RsNPC extends PluginBase {
         ConfigUpdateUtils.updateConfig();
 
         try {
-            Registries.ENTITY.registerCustomEntity(this, new EntityRegistry.CustomEntityDefinition("rsnpc:npc", "", false, true), EntityRsNPC.class);
+            Registries.ENTITY.registerCustomEntity(this, EntityRsNPC.class);
         } catch (RegisterException ignore) {
         }
 
@@ -220,16 +219,16 @@ public class RsNPC extends PluginBase {
         for (String skinName : skins) {
             try {
                 ImageInputStream imageInputStream = ImageIO.createImageInputStream(this.getResource("Skins/" + skinName + ".png"));
-                Skin skin = new Skin();
+                SkinBuilder skin = new SkinBuilder();
                 skin.setSkinData(ImageIO.read(imageInputStream));
                 SerializedImage.fromLegacy(skin.getSkinData().data); //检查非空和图片大小
 
                 if (skinName.contains("_slim")) {
-                    skin.setSkinResourcePatch(Skin.GEOMETRY_CUSTOM_SLIM);
+                    skin.setSkinResourcePatch(SkinBuilder.GEOMETRY_CUSTOM_SLIM);
                 }
                 skin.setTrusted(true);
 
-                this.skins.put("private_" + skinName, skin);
+                this.skins.put("private_" + skinName, skin.build());
             } catch (Exception e) {
                 this.getLogger().error("Plugin built-in skin loading failed!", e);
             }
@@ -263,7 +262,7 @@ public class RsNPC extends PluginBase {
             }
 
             if (skinDataFile != null && skinDataFile.exists()) {
-                Skin skin = new Skin();
+                SkinBuilder skin = new SkinBuilder();
 
                 skin.setSkinId(skinName);
 
@@ -272,7 +271,7 @@ public class RsNPC extends PluginBase {
                     SerializedImage.fromLegacy(skin.getSkinData().data); //检查非空和图片大小
 
                     if (isSlim) {
-                        skin.setSkinResourcePatch(Skin.GEOMETRY_CUSTOM_SLIM);
+                        skin.setSkinResourcePatch(SkinBuilder.GEOMETRY_CUSTOM_SLIM);
                     }
                 } catch (Exception e) {
                     this.getLogger().error(this.getLanguage().translateString("plugin.load.skin.dataError", skinName), e);
@@ -333,7 +332,7 @@ public class RsNPC extends PluginBase {
                 skin.setTrusted(true);
 
                 if (skin.isValid()) {
-                    this.skins.put(skinName, skin);
+                    this.skins.put(skinName, skin.build());
                     this.getLogger().info(this.getLanguage().translateString("plugin.load.skin.loadSucceed", skinName));
                 } else {
                     this.getLogger().error(this.getLanguage().translateString("plugin.load.skin.loadFailure", skinName));

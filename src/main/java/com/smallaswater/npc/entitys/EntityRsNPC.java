@@ -5,15 +5,22 @@ import cn.nukkit.Server;
 import cn.nukkit.block.BlockLiquid;
 import cn.nukkit.entity.EntityHuman;
 import cn.nukkit.entity.custom.CustomEntity;
-import cn.nukkit.entity.data.EntityDataMap;
-import cn.nukkit.entity.data.EntityDataTypes;
-import cn.nukkit.entity.data.Skin;
+import cn.nukkit.entity.custom.CustomEntityDefinition;
+import cn.nukkit.entity.data.human.Skin;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.format.IChunk;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
-import cn.nukkit.network.protocol.*;
-import cn.nukkit.network.protocol.types.EntityLink;
+import org.cloudburstmc.protocol.bedrock.data.ActorLinkType;
+import org.cloudburstmc.protocol.bedrock.data.EmoteFlag;
+import org.cloudburstmc.protocol.bedrock.data.actor.ActorDataMap;
+import org.cloudburstmc.protocol.bedrock.data.actor.ActorDataTypes;
+import org.cloudburstmc.protocol.bedrock.data.actor.ActorLink;
+import org.cloudburstmc.protocol.bedrock.packet.EmotePacket;
+import org.cloudburstmc.protocol.bedrock.packet.PlayerSkinPacket;
+import org.cloudburstmc.protocol.bedrock.packet.RemoveActorPacket;
+import org.cloudburstmc.protocol.bedrock.packet.SetActorDataPacket;
+import org.cloudburstmc.protocol.bedrock.packet.SetActorLinkPacket;
 import com.smallaswater.npc.RsNPC;
 import com.smallaswater.npc.data.RsNpcConfig;
 import com.smallaswater.npc.route.Node;
@@ -27,6 +34,14 @@ import java.util.HashSet;
 import java.util.LinkedList;
 
 public class EntityRsNPC extends EntityHuman implements CustomEntity {
+
+    /**
+     * b-migration 中 {@code registerCustomEntity(Plugin, Class)} 通过类上的静态
+     * {@code definition()} 解析实体定义，不再支持在注册时传入运行时 id。
+     */
+    public static CustomEntityDefinition definition() {
+        return new CustomEntityDefinition("rsnpc:npc", "", false, true);
+    }
 
     @Getter
     private final RsNpcConfig config;
@@ -70,9 +85,9 @@ public class EntityRsNPC extends EntityHuman implements CustomEntity {
 
         //以下内容在initEntity()中执行，需要在获取到config后再执行一次
         if (config.isEnableCustomCollisionSize()) {
-            this.entityDataMap.put(EntityDataTypes.HEIGHT, this.getHeight());
-            this.entityDataMap.put(EntityDataTypes.WIDTH, this.getWidth());
-            this.entityDataMap.put(EntityDataTypes.STRUCTURAL_INTEGRITY, this.getHealth());
+            this.actorDataMap.put(ActorDataTypes.HEIGHT, this.getHeight());
+            this.actorDataMap.put(ActorDataTypes.WIDTH, this.getWidth());
+            this.actorDataMap.put(ActorDataTypes.STRUCTURAL_INTEGRITY, (int) this.getHealth());
         }
     }
 
@@ -148,11 +163,12 @@ public class EntityRsNPC extends EntityHuman implements CustomEntity {
                     if (this.emoteSecond >= this.config.getShowEmoteInterval()) {
                         this.emoteSecond = 0;
                         EmotePacket packet = new EmotePacket();
-                        packet.runtimeId = this.getId();
-                        packet.emoteID = this.config.getEmoteIDs().get(RsNPC.RANDOM.nextInt(this.config.getEmoteIDs().size()));
-                        packet.flags = 0x3; // FLAG_SERVER | FLAG_MUTE_ANNOUNCEMENT
-                        packet.xuid = "";
-                        packet.platformId = "";
+                        packet.setActorRuntimeId(this.getId());
+                        packet.setEmoteId(this.config.getEmoteIDs().get(RsNPC.RANDOM.nextInt(this.config.getEmoteIDs().size())));
+                        packet.getFlags().add(EmoteFlag.SERVER_SIDE); // FLAG_SERVER | FLAG_MUTE_ANNOUNCEMENT
+                        packet.getFlags().add(EmoteFlag.MUTE_EMOTE_CHAT);
+                        packet.setXuid("");
+                        packet.setPlatformId("");
                         Server.broadcastPacket(this.getViewers().values(), packet);
                     }
                 }
@@ -274,17 +290,14 @@ public class EntityRsNPC extends EntityHuman implements CustomEntity {
 
         if (!this.hasSpawned.containsKey(player.getLoaderId()) && this.chunk != null && player.getUsedChunks().contains(Level.chunkHash(this.chunk.getX(), this.chunk.getZ()))) {
             this.hasSpawned.put(player.getLoaderId(), player);
-            player.dataPacket(this.createAddEntityPacket());
+            player.sendPacket(this.createAddEntityPacket());
             this.sendData(player);
         }
         if (this.riding != null) {
             this.riding.spawnTo(player);
-            SetEntityLinkPacket pkk = new SetEntityLinkPacket();
-            pkk.vehicleUniqueId = this.riding.getId();
-            pkk.riderUniqueId = this.getId();
-            pkk.type = EntityLink.Type.RIDER;
-            pkk.immediate = 1;
-            player.dataPacket(pkk);
+            SetActorLinkPacket pkk = new SetActorLinkPacket();
+            pkk.setLink(new ActorLink(this.riding.getId(), this.getId(), ActorLinkType.RIDING, true, false, 0f));
+            player.sendPacket(pkk);
         }
     }
 
@@ -295,9 +308,9 @@ public class EntityRsNPC extends EntityHuman implements CustomEntity {
         }
 
         if (this.hasSpawned.containsKey(player.getLoaderId())) {
-            RemoveEntityPacket pk = new RemoveEntityPacket();
-            pk.eid = this.getId();
-            player.dataPacket(pk);
+            RemoveActorPacket pk = new RemoveActorPacket();
+            pk.setTargetActorID(this.getId());
+            player.sendPacket(pk);
             this.hasSpawned.remove(player.getLoaderId());
         }
     }
@@ -311,10 +324,10 @@ public class EntityRsNPC extends EntityHuman implements CustomEntity {
 
     protected void sendSkin(Skin oldSkin) {
         PlayerSkinPacket packet = new PlayerSkinPacket();
-        packet.skin = this.getSkin();
-        packet.newSkinName = this.getSkin().getSkinId();
-        packet.oldSkinName = oldSkin != null ? oldSkin.getSkinId() : "old";
-        packet.uuid = this.getUniqueId();
+        packet.setSerializedSkin(this.getSkin().getSkin());
+        packet.setNewSkinName(this.getSkin().getSkin().getSkinId());
+        packet.setOldSkinName(oldSkin != null ? oldSkin.getSkin().getSkinId() : "old");
+        packet.setUuid(this.getUniqueId());
         HashSet<Player> players = new HashSet<>(this.getViewers().values());
         if (!players.isEmpty()) {
             Server.broadcastPacket(players, packet);
@@ -322,28 +335,30 @@ public class EntityRsNPC extends EntityHuman implements CustomEntity {
     }
 
     @Override
-    public void sendData(Player player, EntityDataMap data) {
-        SetEntityDataPacket pk = new SetEntityDataPacket();
-        pk.eid = this.getId();
-        pk.entityData = data == null ? this.entityDataMap : data;
-        pk.entityData.putType(
-                EntityDataTypes.NAME,
+    public void sendData(Player player, ActorDataMap data) {
+        SetActorDataPacket pk = new SetActorDataPacket();
+        pk.setTargetRuntimeID(this.getId());
+        ActorDataMap entityData = data == null ? this.actorDataMap : data;
+        entityData.putType(
+                ActorDataTypes.NAME,
                 VariableManage.stringReplace(player, this.getNameTag(), this.getConfig())
         );
-        player.dataPacket(pk);
+        pk.setActorData(entityData);
+        player.sendPacket(pk);
     }
 
     @Override
-    public void sendData(Player[] players, EntityDataMap data) {
+    public void sendData(Player[] players, ActorDataMap data) {
         for (Player player : players) {
-            SetEntityDataPacket pk = new SetEntityDataPacket();
-            pk.eid = this.getId();
-            pk.entityData = data == null ? this.entityDataMap : data;
-            pk.entityData.putType(
-                    EntityDataTypes.NAME,
+            SetActorDataPacket pk = new SetActorDataPacket();
+            pk.setTargetRuntimeID(this.getId());
+            ActorDataMap entityData = data == null ? this.actorDataMap : data;
+            entityData.putType(
+                    ActorDataTypes.NAME,
                     VariableManage.stringReplace(player, this.getNameTag(), this.getConfig())
             );
-            player.dataPacket(pk);
+            pk.setActorData(entityData);
+            player.sendPacket(pk);
         }
     }
 }

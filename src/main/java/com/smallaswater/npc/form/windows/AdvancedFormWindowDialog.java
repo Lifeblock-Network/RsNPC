@@ -2,9 +2,9 @@ package com.smallaswater.npc.form.windows;
 
 import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
-import cn.nukkit.entity.data.EntityDataTypes;
-import cn.nukkit.network.protocol.NPCDialoguePacket;
-import cn.nukkit.network.protocol.NPCRequestPacket;
+import org.cloudburstmc.protocol.bedrock.data.actor.ActorDataTypes;
+import org.cloudburstmc.protocol.bedrock.packet.NpcDialoguePacket;
+import org.cloudburstmc.protocol.bedrock.packet.NpcRequestPacket;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.gson.Gson;
@@ -120,49 +120,49 @@ public class AdvancedFormWindowDialog {
         }
         String actionJson = this.getButtonJSONData();
 
-        this.getBindEntity().setDataProperty(EntityDataTypes.HAS_NPC, true);
-        this.getBindEntity().setDataProperty(EntityDataTypes.NPC_DATA, this.getSkinData());
-        this.getBindEntity().setDataProperty(EntityDataTypes.ACTIONS, actionJson);
-        this.getBindEntity().setDataProperty(EntityDataTypes.INTERACT_TEXT, this.getContent());
+        this.getBindEntity().setDataProperty(ActorDataTypes.HAS_NPC, true);
+        this.getBindEntity().setDataProperty(ActorDataTypes.NPC_DATA, this.getSkinData());
+        this.getBindEntity().setDataProperty(ActorDataTypes.ACTIONS, actionJson);
+        this.getBindEntity().setDataProperty(ActorDataTypes.INTERACT_TEXT, this.getContent());
 
-        NPCDialoguePacket packet = new NPCDialoguePacket();
-        packet.runtimeEntityId = this.getEntityId();
-        packet.action = NPCDialoguePacket.NPCDialogAction.OPEN;
-        packet.dialogue = this.getContent();
-        packet.npcName = this.getTitle();
-        packet.sceneName = this.getSceneName();
-        packet.actionJson = actionJson;
+        NpcDialoguePacket packet = new NpcDialoguePacket();
+        packet.setNpcId(this.getEntityId());
+        packet.setActionType(NpcDialoguePacket.Action.OPEN);
+        packet.setDialogue(this.getContent());
+        packet.setNpcName(this.getTitle());
+        packet.setSceneName(this.getSceneName());
+        packet.setActionJson(actionJson);
         WINDOW_DIALOG_CACHE.put(this.getSceneName(), this);
-        player.dataPacket(packet);
+        player.sendPacket(packet);
     }
 
     public void close(Player player, FormResponseDialog response) {
-        NPCDialoguePacket closeWindowPacket = new NPCDialoguePacket();
-        closeWindowPacket.runtimeEntityId=response.getEntityRuntimeId();
-        closeWindowPacket.action = NPCDialoguePacket.NPCDialogAction.CLOSE;
-        closeWindowPacket.sceneName=response.getSceneName();
-        player.dataPacket(closeWindowPacket);
+        NpcDialoguePacket closeWindowPacket = new NpcDialoguePacket();
+        closeWindowPacket.setNpcId(response.getEntityRuntimeId());
+        closeWindowPacket.setActionType(NpcDialoguePacket.Action.CLOSE);
+        closeWindowPacket.setSceneName(response.getSceneName());
+        player.sendPacket(closeWindowPacket);
     }
 
-    public static boolean onEvent(@NotNull NPCRequestPacket packet, @NotNull Player player) {
-        AdvancedFormWindowDialog dialog = WINDOW_DIALOG_CACHE.getIfPresent(packet.sceneName);
+    public static boolean onEvent(@NotNull NpcRequestPacket packet, @NotNull Player player) {
+        AdvancedFormWindowDialog dialog = WINDOW_DIALOG_CACHE.getIfPresent(packet.getSceneName());
         if (dialog == null) {
             return false;
         }
 
-        if (packet.requestType == NPCRequestPacket.RequestType.EXECUTE_CLOSING_COMMANDS) {
-            WINDOW_DIALOG_CACHE.invalidate(packet.sceneName);
+        if (packet.getRequestType() == NpcRequestPacket.RequestType.EXECUTE_CLOSING_COMMANDS) {
+            WINDOW_DIALOG_CACHE.invalidate(packet.getSceneName());
         }
 
         FormResponseDialog response = new FormResponseDialog(packet, dialog);
 
         ResponseElementDialogButton clickedButton = response.getClickedButton();
-        if (packet.requestType == NPCRequestPacket.RequestType.EXECUTE_ACTION && clickedButton != null) {
+        if (packet.getRequestType() == NpcRequestPacket.RequestType.EXECUTE_ACTION && clickedButton != null) {
             clickedButton.callClicked(player, response);
             dialog.isClosed = true;
         }
 
-        if (packet.requestType == NPCRequestPacket.RequestType.EXECUTE_CLOSING_COMMANDS) {
+        if (packet.getRequestType() == NpcRequestPacket.RequestType.EXECUTE_CLOSING_COMMANDS) {
             dialog.callClosed(player, response);
         }
         return true;

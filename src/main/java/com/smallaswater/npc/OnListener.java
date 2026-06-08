@@ -10,8 +10,8 @@ import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.entity.EntityVehicleEnterEvent;
 import cn.nukkit.event.player.PlayerInteractEntityEvent;
-import cn.nukkit.event.server.DataPacketSendEvent;
-import cn.nukkit.network.protocol.PlayerListPacket;
+import cn.nukkit.event.server.PacketSendEvent;
+import org.cloudburstmc.protocol.bedrock.packet.PlayerListPacket;
 import com.smallaswater.npc.data.RsNpcConfig;
 import com.smallaswater.npc.dialog.DialogPages;
 import com.smallaswater.npc.entitys.EntityRsNPC;
@@ -97,14 +97,14 @@ public class OnListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onDataPacketSend(DataPacketSendEvent event) {
+    public void onDataPacketSend(PacketSendEvent event) {
         if (event.getPacket() instanceof PlayerListPacket packet) {
             if (Api.isHideCustomSkin(event.getPlayer())) {
-                for (PlayerListPacket.Entry entry : packet.entries) {
+                for (PlayerListPacket.Entry entry : packet.getEntries()) {
                     for (RsNpcConfig config : this.rsNPC.getNpcs().values()) {
                         EntityRsNPC entityRsNpc = config.getEntityRsNpc();
-                        if (entityRsNpc != null && entityRsNpc.getUniqueId() == entry.uuid) {
-                            entry.skin = this.rsNPC.getSkinByName("默认皮肤");
+                        if (entityRsNpc != null && entityRsNpc.getUniqueId() == entry.getUuid()) {
+                            entry.setSkin(this.rsNPC.getSkinByName("默认皮肤").getSkin());
                             break;
                         }
                     }

@@ -3,7 +3,7 @@ package com.smallaswater.npc.command.sub;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.command.CommandSender;
-import cn.nukkit.command.data.CommandParamType;
+import org.cloudburstmc.protocol.bedrock.data.command.CommandParamType;
 import cn.nukkit.command.data.CommandParameter;
 import cn.nukkit.utils.Config;
 import com.smallaswater.npc.command.base.BaseSubCommand;
@@ -77,6 +77,6 @@ public class CreateSubCommand extends BaseSubCommand {
 
     @Override
     public CommandParameter[] getParameters() {
-        return new CommandParameter[] { CommandParameter.newType("NPC_Name", CommandParamType.TEXT) };
+        return new CommandParameter[] { CommandParameter.newType("NPC_Name", CommandParamType.RAW_TEXT) };
     }
 }
