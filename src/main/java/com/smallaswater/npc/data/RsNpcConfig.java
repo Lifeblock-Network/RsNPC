@@ -24,6 +24,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +40,14 @@ public class RsNpcConfig {
 
     private final Config config;
     private final String name;
+
+    /**
+     * The source file backing this NPC config (may live in a subfolder of Npcs);
+     * used to locate the file when deleting.
+     */
+    @Setter
+    @Getter
+    private File sourceFile;
     @Setter
     private String showName;
 
@@ -168,7 +177,11 @@ public class RsNpcConfig {
         this.itemData = itemDataCache;
 
         try {
-            this.skinName = config.getString("skin", "private_steve");
+            // Skin name is a path relative to the Skins folder (e.g. staff/admin); normalize separators to tolerate backslashes
+            this.skinName = config.getString("skin", "private_steve").replace('\\', '/');
+            while (this.skinName.startsWith("/")) {
+                this.skinName = this.skinName.substring(1);
+            }
             if (!RsNPC.getInstance().getSkins().containsKey(this.skinName)) {
                 RsNPC.getInstance().getLogger().warning("NPC: " + this.name + " Skin: " + this.skinName + " doesnt exist！switch to default skin！");
             }
@@ -275,7 +288,8 @@ public class RsNpcConfig {
             this.customEntityIdentifier = this.config.getString("CustomEntity.identifier", "RsNPC:Demo");
             this.customEntitySkinId = this.config.getInt("CustomEntity.skinId", 0);
             if (this.enableCustomEntity && Registries.ENTITY.getEntityNetworkId(this.customEntityIdentifier) == 0) {
-                // b-migration: registerCustomEntity 不再接受运行时 id，实体定义由 EntityRsNPC.definition() 提供。
+                // registerCustomEntity no longer accepts a runtime id on PNX 3.0.0;
+                // the entity definition is provided by EntityRsNPC.definition().
                 Registries.ENTITY.registerCustomEntity(RsNPC.getInstance(), EntityRsNPC.class);
             }
         } catch (Exception e) {

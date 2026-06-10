@@ -10,6 +10,7 @@ import com.smallaswater.npc.command.base.BaseSubCommand;
 import com.smallaswater.npc.data.RsNpcConfig;
 import com.smallaswater.npc.utils.Utils;
 
+import java.io.File;
 import java.util.LinkedHashMap;
 
 /**
@@ -34,18 +35,43 @@ public class CreateSubCommand extends BaseSubCommand {
     @Override
     public boolean execute(CommandSender sender, String label, String[] args) {
         if (args.length > 1) {
-            String name = args[1].trim();
-            if ("".equals(name)) {
+            // Supports the subfolder/name form, e.g. /rsnpc create shops/blacksmith
+            String name = args[1].trim().replace('\\', '/');
+            while (name.startsWith("/")) {
+                name = name.substring(1);
+            }
+            while (name.endsWith("/")) {
+                name = name.substring(0, name.length() - 1);
+            }
+            if (name.isEmpty()) {
                 sender.sendMessage(this.rsNPC.getLanguage().translateString("tips.nameRequired"));
+                return true;
+            }
+            // Validate the path: disallow empty path segments and path traversal (..)
+            boolean invalidPath = name.contains("//");
+            for (String part : name.split("/")) {
+                if (part.trim().isEmpty() || "..".equals(part)) {
+                    invalidPath = true;
+                    break;
+                }
+            }
+            if (invalidPath) {
+                sender.sendMessage("§cInvalid NPC name/path: " + name);
                 return true;
             }
             if (this.rsNPC.getNpcs().containsKey(name)) {
                 sender.sendMessage(this.rsNPC.getLanguage().translateString("tips.npcAlreadyExist", name));
                 return true;
             }
+            File npcFile = new File(this.rsNPC.getDataFolder() + "/Npcs/" + name + ".yml");
+            if (npcFile.getParentFile() != null) {
+                npcFile.getParentFile().mkdirs();
+            }
             this.rsNPC.saveResource("Npc.yml", "/Npcs/" + name + ".yml", false);
-            Config config = new Config(this.rsNPC.getDataFolder() + "/Npcs/" + name + ".yml", Config.YAML);
-            config.set("name", name);
+            Config config = new Config(npcFile, Config.YAML);
+            // The NPC identifier is the full path, but the default display name (the floating nametag) uses only the last segment for nicer presentation
+            String displayName = name.contains("/") ? name.substring(name.lastIndexOf('/') + 1) : name;
+            config.set("name", displayName);
             Player player = (Player) sender;
             LinkedHashMap<String, Object> map = new LinkedHashMap<>();
             map.put("x", player.getX());
@@ -63,6 +89,7 @@ public class CreateSubCommand extends BaseSubCommand {
                 this.rsNPC.getLogger().error("Failed to create NPC!", e);
                 return true;
             }
+            rsNpcConfig.setSourceFile(npcFile);
             this.rsNPC.getNpcs().put(name, rsNpcConfig);
             rsNpcConfig.checkEntity();
             //修复首次生成不显示的问题 通过重复生成实体解决nk未能及时发送PlayerListPacket的问题

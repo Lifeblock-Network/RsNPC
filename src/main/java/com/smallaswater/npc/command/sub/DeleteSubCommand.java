@@ -4,6 +4,7 @@ import cn.nukkit.command.CommandSender;
 import org.cloudburstmc.protocol.bedrock.data.command.CommandParamType;
 import cn.nukkit.command.data.CommandParameter;
 import com.smallaswater.npc.command.base.BaseSubCommand;
+import com.smallaswater.npc.data.RsNpcConfig;
 
 import java.io.File;
 
@@ -34,9 +35,16 @@ public class DeleteSubCommand extends BaseSubCommand {
                 sender.sendMessage("§c§lNPC " + name + "不存在...");
                 return true;
             }
-            this.rsNPC.getNpcs().get(name).getEntityRsNpc().close();
+            RsNpcConfig rsNpcConfig = this.rsNPC.getNpcs().get(name);
+            if (rsNpcConfig.getEntityRsNpc() != null) {
+                rsNpcConfig.getEntityRsNpc().close();
+            }
             this.rsNPC.getNpcs().remove(name);
-            if (!(new File(this.rsNPC.getDataFolder() + "/Npcs/" + name + ".yml")).delete()) {
+            File npcFile = rsNpcConfig.getSourceFile();
+            if (npcFile == null) {
+                npcFile = new File(this.rsNPC.getDataFolder() + "/Npcs/" + name + ".yml");
+            }
+            if (!npcFile.delete()) {
                 sender.sendMessage(this.rsNPC.getLanguage().translateString("tips.command.npcRemoveFileFailed", name));
             }else {
                 sender.sendMessage(this.rsNPC.getLanguage().translateString("tips.command.npcRemoveSuccess", name));

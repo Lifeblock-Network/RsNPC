@@ -36,8 +36,9 @@ import java.util.LinkedList;
 public class EntityRsNPC extends EntityHuman implements CustomEntity {
 
     /**
-     * b-migration 中 {@code registerCustomEntity(Plugin, Class)} 通过类上的静态
-     * {@code definition()} 解析实体定义，不再支持在注册时传入运行时 id。
+     * In PNX 3.0.0, {@code registerCustomEntity(Plugin, Class)} resolves the entity
+     * definition from a static {@code definition()} method on the class; it no longer
+     * accepts a runtime id passed at registration time.
      */
     public static CustomEntityDefinition definition() {
         return new CustomEntityDefinition("rsnpc:npc", "", false, true);
@@ -78,16 +79,16 @@ public class EntityRsNPC extends EntityHuman implements CustomEntity {
         this.setNameTagAlwaysVisible(config.isNameTagAlwaysVisible());
         this.setNameTagVisible(true);
         this.setNameTag(config.getShowName());
-        this.setMaxHealth(20);
-        this.setHealth(20.0F);
-        this.getInventory().setItemInHand(config.getHand());
+        this.setHealthMax(20);
+        this.setHealthCurrent(20.0F);
+        this.getInventory().setItemInMainHand(config.getHand());
         this.getInventory().setArmorContents(config.getArmor());
 
         //以下内容在initEntity()中执行，需要在获取到config后再执行一次
         if (config.isEnableCustomCollisionSize()) {
             this.actorDataMap.put(ActorDataTypes.HEIGHT, this.getHeight());
             this.actorDataMap.put(ActorDataTypes.WIDTH, this.getWidth());
-            this.actorDataMap.put(ActorDataTypes.STRUCTURAL_INTEGRITY, (int) this.getHealth());
+            this.actorDataMap.put(ActorDataTypes.STRUCTURAL_INTEGRITY, (int) this.getHealthCurrent());
         }
     }
 

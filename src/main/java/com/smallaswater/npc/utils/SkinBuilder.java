@@ -2,6 +2,8 @@ package com.smallaswater.npc.utils;
 
 import cn.nukkit.entity.data.human.Skin;
 import cn.nukkit.utils.SerializedImage;
+import lombok.Getter;
+import lombok.Setter;
 import org.cloudburstmc.protocol.bedrock.data.skin.ImageData;
 import org.cloudburstmc.protocol.bedrock.data.skin.SerializedSkin;
 
@@ -12,14 +14,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 /**
- * 皮肤构建器。
+ * Skin builder.
  * <p>
- * b-migration 中 {@code cn.nukkit.entity.data.human.Skin} 变成了对
- * {@code org.cloudburstmc.protocol.bedrock.data.skin.SerializedSkin} 的不可变包装，
- * 不再提供旧版可变的 setter API。此类复刻旧版 {@code cn.nukkit.entity.data.Skin} 中
- * 本插件用到的部分构建逻辑，最终通过 {@link #build()} 产出新的 Skin。
- *
- * @author LT_Name (migration helper)
+ * In PNX 3.0.0, {@code cn.nukkit.entity.data.human.Skin} became an immutable wrapper
+ * around {@code org.cloudburstmc.protocol.bedrock.data.skin.SerializedSkin} and no longer
+ * exposes the old mutable setter API. This class reproduces the parts of the legacy
+ * {@code cn.nukkit.entity.data.Skin} build logic that this plugin relies on, and finally
+ * produces the new Skin via {@link #build()}.
  */
 public class SkinBuilder {
 
@@ -31,10 +32,13 @@ public class SkinBuilder {
 
     private String skinId;
     private String skinResourcePatch = GEOMETRY_CUSTOM;
+    @Getter
     private SerializedImage skinData;
     private String geometryName;
     private String geometryData = "";
+    @Setter
     private String geometryDataEngineVersion = "0.0.0";
+    @Setter
     private boolean trusted = true;
 
     private static String convertLegacyGeometryName(String geometryName) {
@@ -99,10 +103,6 @@ public class SkinBuilder {
         }
     }
 
-    public void setGeometryDataEngineVersion(String geometryDataEngineVersion) {
-        this.geometryDataEngineVersion = geometryDataEngineVersion;
-    }
-
     public void setSkinData(byte[] skinData) {
         this.skinData = SerializedImage.fromLegacy(skinData);
     }
@@ -111,19 +111,11 @@ public class SkinBuilder {
         this.skinData = parseBufferedImage(image);
     }
 
-    public SerializedImage getSkinData() {
-        return this.skinData;
-    }
-
     public String getSkinId() {
         if (this.skinId == null) {
             generateSkinId("Custom");
         }
         return this.skinId;
-    }
-
-    public void setTrusted(boolean trusted) {
-        this.trusted = trusted;
     }
 
     public boolean isValid() {

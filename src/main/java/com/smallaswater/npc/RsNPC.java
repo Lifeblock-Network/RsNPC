@@ -178,36 +178,60 @@ public class RsNPC extends PluginBase {
     }
 
     private void loadNpcs() {
-        File[] files = (new File(getDataFolder() + "/Npcs")).listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (!file.isFile() && file.getName().endsWith(".yml")) {
-                    continue;
-                }
-                String npcName = file.getName().split("\\.")[0];
-                Config config;
-                try {
-                    config = new Config(file, Config.YAML);
-                } catch (Exception e) {
-                    this.getLogger().error(this.getLanguage().translateString("plugin.load.NPC.loadConfigError", npcName), e);
-                    continue;
-                }
-                RsNpcConfig rsNpcConfig;
-                try {
-                    rsNpcConfig = new RsNpcConfig(npcName, config);
-                } catch (Exception e) {
-                    this.getLogger().error(this.getLanguage().translateString("plugin.load.NPC.loadError", npcName), e);
-                    continue;
-                }
-                this.npcs.put(npcName, rsNpcConfig);
-                this.getLogger().info(this.getLanguage().translateString("plugin.load.NPC.loadComplete", rsNpcConfig.getName()));
-            }
-        }
+        File root = new File(getDataFolder() + "/Npcs");
+        this.loadNpcsFromDir(root, root);
         this.getServer().getScheduler().scheduleDelayedTask(this, () -> {
             for (RsNpcConfig config : this.npcs.values()) {
                 config.checkEntity();
             }
         }, 1);
+    }
+
+    /**
+     * Recursively loads all NPC config files under the given directory and its subdirectories.
+     * The NPC name is the path relative to the Npcs root (separated by /, without the .yml suffix),
+     * so files with the same name in different subfolders are treated as different NPCs and never conflict.
+     *
+     * @param root the Npcs root directory, used to compute the relative path name
+     * @param dir  the directory currently being traversed
+     */
+    private void loadNpcsFromDir(File root, File dir) {
+        File[] files = dir.listFiles();
+        if (files == null) {
+            return;
+        }
+        for (File file : files) {
+            if (file.isDirectory()) {
+                this.loadNpcsFromDir(root, file);
+                continue;
+            }
+            if (!file.getName().endsWith(".yml")) {
+                continue;
+            }
+            String relative = root.toPath().relativize(file.toPath()).toString().replace(File.separatorChar, '/');
+            String npcName = relative.substring(0, relative.length() - ".yml".length());
+            if (this.npcs.containsKey(npcName)) {
+                this.getLogger().warning("NPC name conflict: '" + npcName + "' (" + file.getPath() + ") is already loaded, skipping this duplicate.");
+                continue;
+            }
+            Config config;
+            try {
+                config = new Config(file, Config.YAML);
+            } catch (Exception e) {
+                this.getLogger().error(this.getLanguage().translateString("plugin.load.NPC.loadConfigError", npcName), e);
+                continue;
+            }
+            RsNpcConfig rsNpcConfig;
+            try {
+                rsNpcConfig = new RsNpcConfig(npcName, config);
+            } catch (Exception e) {
+                this.getLogger().error(this.getLanguage().translateString("plugin.load.NPC.loadError", npcName), e);
+                continue;
+            }
+            rsNpcConfig.setSourceFile(file);
+            this.npcs.put(npcName, rsNpcConfig);
+            this.getLogger().info(this.getLanguage().translateString("plugin.load.NPC.loadComplete", rsNpcConfig.getName()));
+        }
     }
 
     /**
@@ -236,110 +260,151 @@ public class RsNPC extends PluginBase {
     }
 
     private void loadSkins() {
-        File[] files = new File(this.getDataFolder() + "/Skins").listFiles();
+        File root = new File(this.getDataFolder() + "/Skins");
+        this.loadSkinsFromDir(root, root);
+    }
+
+    /**
+     * Recursively loads all skins under the given directory and its subdirectories.
+     * A directory containing skin.png / skin_slim.png is treated as a 4D skin directory;
+     * any other directory is treated as an organizational subfolder.
+     * The skin name is the path relative to the Skins root (separated by /, without the .png / _slim suffix),
+     * matching the NPC naming rule, so skins with the same name in different subfolders never conflict.
+     *
+     * @param root the Skins root directory, used to compute the relative path name
+     * @param dir  the directory currently being traversed
+     */
+    private void loadSkinsFromDir(File root, File dir) {
+        File[] files = dir.listFiles();
         if (files == null) {
             return;
         }
         for (File file : files) {
-            String skinName = file.getName();
-
-            File skinDataFile = null;
-            boolean isSlim = true;
-            if (file.isFile() && skinName.endsWith(".png")) {
-                skinName = skinName.replace(".png", "");
-                skinDataFile = file;
-                if (skinName.contains("_slim")) {
-                    skinName = skinName.replace("_slim", "");
+            if (file.isDirectory()) {
+                if (new File(file, "skin_slim.png").exists() || new File(file, "skin.png").exists()) {
+                    this.loadSkin(root, file); // 4D skin directory
                 } else {
-                    isSlim = false;
+                    this.loadSkinsFromDir(root, file); // organizational subfolder, keep recursing
                 }
-            } else if (file.isDirectory()) {
-                skinDataFile = new File(this.getDataFolder() + "/Skins/" + skinName + "/skin_slim.png");
-                if (!skinDataFile.exists()) {
-                    skinDataFile = new File(this.getDataFolder() + "/Skins/" + skinName + "/skin.png");
-                    isSlim = false;
+            } else if (file.getName().endsWith(".png")) {
+                this.loadSkin(root, file);
+            }
+        }
+    }
+
+    private void loadSkin(File root, File file) {
+        String leafName = file.getName();
+        File baseDir;
+
+        File skinDataFile = null;
+        boolean isSlim = true;
+        if (file.isFile() && leafName.endsWith(".png")) {
+            baseDir = file.getParentFile();
+            leafName = leafName.substring(0, leafName.length() - ".png".length());
+            skinDataFile = file;
+            if (leafName.contains("_slim")) {
+                leafName = leafName.replace("_slim", "");
+            } else {
+                isSlim = false;
+            }
+        } else if (file.isDirectory()) {
+            baseDir = file;
+            skinDataFile = new File(file, "skin_slim.png");
+            if (!skinDataFile.exists()) {
+                skinDataFile = new File(file, "skin.png");
+                isSlim = false;
+            }
+        } else {
+            return;
+        }
+
+        // Skin name is the path relative to the Skins root, matching the NPC naming rule
+        String skinName;
+        if (file.isDirectory()) {
+            skinName = root.toPath().relativize(file.toPath()).toString().replace(File.separatorChar, '/');
+        } else {
+            String prefix = root.toPath().relativize(baseDir.toPath()).toString().replace(File.separatorChar, '/');
+            skinName = prefix.isEmpty() ? leafName : prefix + "/" + leafName;
+        }
+
+        if (skinDataFile != null && skinDataFile.exists()) {
+            SkinBuilder skin = new SkinBuilder();
+
+            skin.setSkinId(skinName);
+
+            try {
+                skin.setSkinData(ImageIO.read(skinDataFile));
+                SerializedImage.fromLegacy(skin.getSkinData().data); //检查非空和图片大小
+
+                if (isSlim) {
+                    skin.setSkinResourcePatch(SkinBuilder.GEOMETRY_CUSTOM_SLIM);
                 }
+            } catch (Exception e) {
+                this.getLogger().error(this.getLanguage().translateString("plugin.load.skin.dataError", skinName), e);
+                return;
             }
 
-            if (skinDataFile != null && skinDataFile.exists()) {
-                SkinBuilder skin = new SkinBuilder();
-
-                skin.setSkinId(skinName);
-
-                try {
-                    skin.setSkinData(ImageIO.read(skinDataFile));
-                    SerializedImage.fromLegacy(skin.getSkinData().data); //检查非空和图片大小
-
-                    if (isSlim) {
-                        skin.setSkinResourcePatch(SkinBuilder.GEOMETRY_CUSTOM_SLIM);
-                    }
-                } catch (Exception e) {
-                    this.getLogger().error(this.getLanguage().translateString("plugin.load.skin.dataError", skinName), e);
-                    continue;
+            //如果是4D皮肤
+            try {
+                File skinJsonFile = null;
+                if (file.isFile()) {
+                    skinJsonFile = new File(baseDir, leafName + ".json");
+                } else if (file.isDirectory()) {
+                    skinJsonFile = new File(file, "skin.json");
                 }
+                if (skinJsonFile != null && skinJsonFile.exists()) {
+                    Map<String, Object> skinJson = (new Config(skinJsonFile, Config.JSON)).getAll();
+                    String geometryName = null;
 
-                //如果是4D皮肤
-                try {
-                    File skinJsonFile = null;
-                    if (file.isFile()) {
-                        skinJsonFile = new File(this.getDataFolder() + "/Skins/" + skinName + ".json");
-                    } else if (file.isDirectory()) {
-                        skinJsonFile = new File(this.getDataFolder() + "/Skins/" + skinName + "/skin.json");
-                    }
-                    if (skinJsonFile != null && skinJsonFile.exists()) {
-                        Map<String, Object> skinJson = (new Config(this.getDataFolder() + "/Skins/" + skinName + "/skin.json", Config.JSON)).getAll();
-                        String geometryName = null;
-
-                        String formatVersion = (String) skinJson.getOrDefault("format_version", "1.10.0");
-                        skin.setGeometryDataEngineVersion(formatVersion); //设置皮肤版本，主流格式有1.16.0,1.12.0(Blockbench新模型),1.10.0(Blockbench Legacy模型),1.8.0
-                        switch (formatVersion) {
-                            case "1.16.0":
-                            case "1.12.0":
-                                geometryName = getGeometryName(skinJsonFile);
-                                if (geometryName.equals("nullvalue")) {
-                                    this.getLogger().error(this.getLanguage().translateString("plugin.load.skin.jsonDataIncompatible", skinName));
-                                } else {
-                                    skin.generateSkinId(skinName);
-                                    skin.setSkinResourcePatch("{\"geometry\":{\"default\":\"" + geometryName + "\"}}");
-                                    skin.setGeometryName(geometryName);
-                                    skin.setGeometryData(Utils.readFile(skinJsonFile));
-                                }
-                                break;
-                            default:
-                                this.getLogger().warning("[" + skinJsonFile.getName() + "] 的版本格式为：" + formatVersion + "，正在尝试加载！");
-                            case "1.10.0":
-                            case "1.8.0":
-                                for (Map.Entry<String, Object> entry : skinJson.entrySet()) {
-                                    if (geometryName == null) {
-                                        if (entry.getKey().startsWith("geometry")) {
-                                            geometryName = entry.getKey();
-                                        }
-                                    } else {
-                                        break;
-                                    }
-                                }
+                    String formatVersion = (String) skinJson.getOrDefault("format_version", "1.10.0");
+                    skin.setGeometryDataEngineVersion(formatVersion); //设置皮肤版本，主流格式有1.16.0,1.12.0(Blockbench新模型),1.10.0(Blockbench Legacy模型),1.8.0
+                    switch (formatVersion) {
+                        case "1.16.0":
+                        case "1.12.0":
+                            geometryName = getGeometryName(skinJsonFile);
+                            if (geometryName.equals("nullvalue")) {
+                                this.getLogger().error(this.getLanguage().translateString("plugin.load.skin.jsonDataIncompatible", skinName));
+                            } else {
                                 skin.generateSkinId(skinName);
                                 skin.setSkinResourcePatch("{\"geometry\":{\"default\":\"" + geometryName + "\"}}");
                                 skin.setGeometryName(geometryName);
                                 skin.setGeometryData(Utils.readFile(skinJsonFile));
-                                break;
-                        }
+                            }
+                            break;
+                        default:
+                            this.getLogger().warning("[" + skinJsonFile.getName() + "] 的版本格式为：" + formatVersion + "，正在尝试加载！");
+                        case "1.10.0":
+                        case "1.8.0":
+                            for (Map.Entry<String, Object> entry : skinJson.entrySet()) {
+                                if (geometryName == null) {
+                                    if (entry.getKey().startsWith("geometry")) {
+                                        geometryName = entry.getKey();
+                                    }
+                                } else {
+                                    break;
+                                }
+                            }
+                            skin.generateSkinId(skinName);
+                            skin.setSkinResourcePatch("{\"geometry\":{\"default\":\"" + geometryName + "\"}}");
+                            skin.setGeometryName(geometryName);
+                            skin.setGeometryData(Utils.readFile(skinJsonFile));
+                            break;
                     }
-                } catch (Exception e) {
-                    this.getLogger().error(this.getLanguage().translateString("plugin.load.skin.jsonDataError", skinName), e);
                 }
-
-                skin.setTrusted(true);
-
-                if (skin.isValid()) {
-                    this.skins.put(skinName, skin.build());
-                    this.getLogger().info(this.getLanguage().translateString("plugin.load.skin.loadSucceed", skinName));
-                } else {
-                    this.getLogger().error(this.getLanguage().translateString("plugin.load.skin.loadFailure", skinName));
-                }
-            } else {
-                this.getLogger().error(this.getLanguage().translateString("plugin.load.skin.nameError", skinName));
+            } catch (Exception e) {
+                this.getLogger().error(this.getLanguage().translateString("plugin.load.skin.jsonDataError", skinName), e);
             }
+
+            skin.setTrusted(true);
+
+            if (skin.isValid()) {
+                this.skins.put(skinName, skin.build());
+                this.getLogger().info(this.getLanguage().translateString("plugin.load.skin.loadSucceed", skinName));
+            } else {
+                this.getLogger().error(this.getLanguage().translateString("plugin.load.skin.loadFailure", skinName));
+            }
+        } else {
+            this.getLogger().error(this.getLanguage().translateString("plugin.load.skin.nameError", skinName));
         }
     }
 
