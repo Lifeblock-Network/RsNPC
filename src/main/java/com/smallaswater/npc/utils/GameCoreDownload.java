@@ -23,13 +23,13 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
- * 自动下载GameCore依赖工具类
+ * Utility class for automatically downloading the GameCore dependency
  */
 public class GameCoreDownload {
 
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36";
 
-    // 每个任务下载 128 kb数据
+    // each task downloads 128 kb of data
     private static final int THRESHOLD = 128 * 1024;
 
     public static final String MINIMUM_GAME_CORE_VERSION = "1.6.11";
@@ -42,7 +42,7 @@ public class GameCoreDownload {
     private static final List<String> GAME_CORE_URL_LIST;
 
     static {
-        //为了防止编译依赖和实际环境区别，这里重新检查GameCore完整版本号
+        //re-check the full GameCore version here to account for differences between the compile-time dependency and the actual runtime environment
         ACTUAL_MINIMUM_GAME_CORE_VERSION = MINIMUM_GAME_CORE_VERSION.split("-")[0];
         String codename = Server.getInstance().getCodename();
         if ("PowerNukkitX".equalsIgnoreCase(codename)/* || "PowerNukkit".equalsIgnoreCase(codename)*/) {
@@ -59,7 +59,7 @@ public class GameCoreDownload {
     }
 
     private static String getGameCoreUrl(String mavenUrl) {
-        //插件完整下载地址
+        //full plugin download URL
         return mavenUrl + "cn/lanink/MemoriesOfTime-GameCore/" + ACTUAL_MINIMUM_GAME_CORE_VERSION + "/MemoriesOfTime-GameCore-" + ACTUAL_MINIMUM_GAME_CORE_VERSION + ".jar";
     }
 
@@ -68,19 +68,19 @@ public class GameCoreDownload {
     }
 
     /**
-     * 检查并下载GameCore依赖
+     * Check and download the GameCore dependency
      *
-     * @return 0 - GameCore已加载且是最新版本    1 - 无法下载GameCore     2 下载成功
+     * @return 0 - GameCore is loaded and up to date    1 - GameCore could not be downloaded     2 - downloaded successfully
      */
     public static int checkAndDownload() {
         return checkAndDownload(0);
     }
 
     /**
-     * 检查并下载GameCore依赖
+     * Check and download the GameCore dependency
      *
-     * @param retry 重试次数(下载链接序号)
-     * @return 0 - GameCore已加载且是最新版本    1 - 无法下载GameCore     2 下载成功
+     * @param retry the retry count (download URL index)
+     * @return 0 - GameCore is loaded and up to date    1 - GameCore could not be downloaded     2 - downloaded successfully
      */
     private static int checkAndDownload(int retry) {
         if (retry >= GAME_CORE_URL_LIST.size()) {
@@ -120,7 +120,7 @@ public class GameCoreDownload {
                 AtomicDouble last = new AtomicDouble(-16);
                 download(url, file, (len, fullLength) -> {
                     double d = NukkitMath.round(len * 1.0 / fullLength * 100, 2);
-                    if (d - last.get() > 15) { // 每15%提示一次
+                    if (d - last.get() > 15) { // report progress every 15%
                         RsNPC.getInstance().getLogger().info("已下载：" + d + "%");
                         last.set(d);
                     }
@@ -153,11 +153,11 @@ public class GameCoreDownload {
     }
 
     /**
-     * 下载
+     * Download
      *
-     * @param strUrl   目标url
-     * @param saveFile 保存到文件
-     * @param callback 下载完的回调
+     * @param strUrl   the target URL
+     * @param saveFile the file to save to
+     * @param callback the callback invoked as the download progresses
      */
     private static void download(String strUrl, File saveFile, BiConsumer<Long, Long> callback) throws Exception {
         URL url = new URL(strUrl);
@@ -170,7 +170,7 @@ public class GameCoreDownload {
 
 
         long fullLength = connection.getContentLength();
-        if ("chunked".equals(connection.getHeaderField("Transfer-Encoding"))) { // chunked transfer 采用单线程下载
+        if ("chunked".equals(connection.getHeaderField("Transfer-Encoding"))) { // chunked transfer uses single-threaded download
             RandomAccessFile out = new RandomAccessFile(saveFile, "rw");
             out.seek(0);
             byte[] b = new byte[1024];
@@ -195,7 +195,7 @@ public class GameCoreDownload {
             callback.accept(atomicLong.get(), fullLength);
         }));
         pool.shutdown();
-        // 同步  等待所有线程完成操作
+        // synchronize: wait for all threads to finish
         while (!pool.awaitTermination(1, TimeUnit.SECONDS)) {
         }
         if (fullLength < 1 || saveFile.length() < 1) {

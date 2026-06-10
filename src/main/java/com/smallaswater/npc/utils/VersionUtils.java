@@ -15,11 +15,11 @@ import java.util.LinkedList;
 public class VersionUtils {
 
     /**
-     * 检查插件是否符合最低版本
+     * Check whether the plugin meets the minimum version
      *
-     * @param plugin       插件
-     * @param leastVersion 最低版本
-     * @return 是否大于等于最低版本
+     * @param plugin       the plugin
+     * @param leastVersion the minimum version
+     * @return whether it is greater than or equal to the minimum version
      */
     public static boolean checkMinimumVersion(@NotNull Plugin plugin, @NotNull String leastVersion) {
         return compareVersion(plugin.getDescription().getVersion(), leastVersion) != -1;

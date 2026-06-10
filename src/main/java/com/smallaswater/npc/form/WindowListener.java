@@ -17,8 +17,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 窗口操作监听器
- * 实现AdvancedFormWindow AdvancedInventory操作处理
+ * Window action listener.
+ * Implements AdvancedFormWindow / AdvancedInventory action handling.
  *
  * @author LT_Name
  */
@@ -55,7 +55,7 @@ public class WindowListener implements Listener {
         Player player = event.getPlayer();
         HashMap<Integer, Form<?>> map = new HashMap<>(event.getSettings());
         event.setSettings(new HashMap<>());
-        //必须延迟一下，否则客户端不显示
+        //a short delay is required, otherwise the client doesn't display it
         Server.getInstance().getScheduler().scheduleDelayedTask(RsNPC.getInstance(), () -> {
             for (Map.Entry<Integer, Form<?>> entry : map.entrySet()) {
                 ServerSettingsResponsePacket pk = new ServerSettingsResponsePacket();

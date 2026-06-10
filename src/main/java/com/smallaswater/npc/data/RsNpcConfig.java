@@ -108,12 +108,12 @@ public class RsNpcConfig {
     @Getter
     private String dialogPagesName;
 
-    // 自定义实体
+    // custom entity
     private boolean enableCustomEntity;
     private String customEntityIdentifier;
     private int customEntitySkinId;
 
-    //自定义碰撞大小
+    //custom collision size
     @Getter
     private boolean enableCustomCollisionSize;
     @Getter
@@ -305,7 +305,7 @@ public class RsNpcConfig {
             throw new RsNpcConfigLoadException("NPC config `CustomCollisionSize` failed to load! Please check the config file！", e);
         }
 
-        //更新配置文件
+        //update the config file
         this.save();
         ConfigUtils.addDescription(this.config, RsNPC.getInstance().getNpcConfigDescription());
     }

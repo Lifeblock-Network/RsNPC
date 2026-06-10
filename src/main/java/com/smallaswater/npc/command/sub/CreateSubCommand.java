@@ -92,7 +92,7 @@ public class CreateSubCommand extends BaseSubCommand {
             rsNpcConfig.setSourceFile(npcFile);
             this.rsNPC.getNpcs().put(name, rsNpcConfig);
             rsNpcConfig.checkEntity();
-            //修复首次生成不显示的问题 通过重复生成实体解决nk未能及时发送PlayerListPacket的问题
+            //fix the issue where the NPC doesn't show on first spawn; respawn the entity to work around Nukkit not sending the PlayerListPacket in time
             Server.getInstance().getScheduler().scheduleDelayedTask(this.rsNPC, () -> rsNpcConfig.getEntityRsNpc().close(), 20);
             Server.getInstance().getScheduler().scheduleDelayedTask(this.rsNPC, rsNpcConfig::checkEntity, 40);
             sender.sendMessage(this.rsNPC.getLanguage().translateString("tips.npcCreateSuccess", name));

@@ -21,20 +21,20 @@ import java.util.HashMap;
 public class ConfigUpdateUtils {
 
     public static void updateConfig() {
-        //RsNPC 1.X.X -- RsNpcX 1.X.X 不需要更新
+        //RsNPC 1.X.X -- RsNpcX 1.X.X does not need updating
         updateRsNpcX1_X_X_To_RsNPC2_0_0();
         updateRsNPC2_0_0_To_RsNPC2_2_3();
     }
 
     /**
-     * 从RsNPCX 1.X.X 更新到 RsNPC 2.0.0
+     * Update from RsNPCX 1.X.X to RsNPC 2.0.0
      */
     private static void updateRsNpcX1_X_X_To_RsNPC2_0_0() {
-        //卸载并删除RsNPCX插件
+        //disable and delete the RsNPCX plugin
         Plugin rsNPCX = RsNPC.getInstance().getServer().getPluginManager().getPlugin("RsNPCX");
         if (rsNPCX != null) {
             try {
-                Class.forName("com.smallaswater.npc.RsNpcX"); //防止误操作其他重名插件
+                Class.forName("com.smallaswater.npc.RsNpcX"); //guard against accidentally affecting another plugin with the same name
                 File file = Utils.getPluginFile(rsNPCX);
                 Server.getInstance().getPluginManager().disablePlugin(rsNPCX);
                 ClassLoader classLoader = rsNPCX.getClass().getClassLoader();
@@ -48,7 +48,7 @@ public class ConfigUpdateUtils {
 
             }
         }
-        //文件夹名称修改
+        //rename the folder
         File file = new File(RsNPC.getInstance().getServer().getPluginPath() + "/RsNPCX");
         if (file.exists()) {
             if (file.renameTo(RsNPC.getInstance().getDataFolder())) {
@@ -60,7 +60,7 @@ public class ConfigUpdateUtils {
     }
 
     /**
-     * 从RsNPC 2.0.0--2.2.2 更新到 RsNPC-2.2.3
+     * Update from RsNPC 2.0.0--2.2.2 to RsNPC-2.2.3
      */
     private static void updateRsNPC2_0_0_To_RsNPC2_2_3() {
         File[] files = (new File(RsNPC.getInstance().getDataFolder() + "/Npcs")).listFiles();
@@ -75,7 +75,7 @@ public class ConfigUpdateUtils {
                     continue;
                 }
 
-                // emoji.interval(秒) -> emoji.interval
+                // emoji.interval(seconds) -> emoji.interval
                 HashMap<Object, Object> map = config.get("表情动作", new HashMap<>());
                 map.put("间隔", map.getOrDefault("间隔(秒)", 10));
                 map.remove("间隔(秒)");

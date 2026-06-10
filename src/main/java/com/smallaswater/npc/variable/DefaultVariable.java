@@ -10,8 +10,8 @@ public class DefaultVariable extends BaseVariableV2 {
 
     @Override
     public void onUpdate(Player player, RsNpcConfig rsNpcConfig) {
-        this.addVariable("\\n", "\n"); //将字符 \n 替换为换行
-        this.addVariable("\\\n", "\\n"); //将字符 \\n 替换为字符 \n
+        this.addVariable("\\n", "\n"); //replace the literal \n with a line break
+        this.addVariable("\\\n", "\\n"); //replace the literal \\n with the literal \n
         if (rsNpcConfig != null) {
             this.addVariable("%npcName%", rsNpcConfig.getName());
         }

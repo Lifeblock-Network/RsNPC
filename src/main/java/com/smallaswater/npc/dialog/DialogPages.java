@@ -78,7 +78,7 @@ public class DialogPages {
         }
 
         public void send(@NotNull EntityRsNPC entityRsNpc, @NotNull Player player) {
-            //RsNPC的对话框没有实现编辑界面，创造玩家先转为冒险模式，再发送对话框，最后恢复玩家的游戏模式
+            //RsNPC's dialog has no edit screen, so for creative players switch to adventure mode first, send the dialog, then restore the player's game mode
             int beforeGameMode = -1;
             if (player.getGamemode() == Player.CREATIVE) {
                 beforeGameMode = player.getGamemode();
@@ -86,13 +86,13 @@ public class DialogPages {
             }
             final int finalBeforeGameMode = beforeGameMode;
 
-            //1.19.40+ 有两个关闭按钮，上面的关闭按钮无法监听，这里使用Task延迟处理
+            //1.19.40+ has two close buttons; the top close button can't be listened to, so handle it with a delayed Task here
             Server.getInstance().getScheduler().scheduleDelayedTask(RsNPC.getInstance(), () -> {
                 if (finalBeforeGameMode != -1) {
                     player.setGamemode(finalBeforeGameMode);
                 }
 
-                //修复 1.19.40+ 未知原因导致的不显示NPC名称问题
+                //fix the 1.19.40+ issue where the NPC name isn't shown for unknown reasons
                 String nameTag = entityRsNpc.getNameTag();
                 entityRsNpc.setNameTag("re" + nameTag);
                 entityRsNpc.setNameTag(nameTag);
@@ -118,7 +118,7 @@ public class DialogPages {
                                 Utils.executeCommand(p, entityRsNpc.getConfig(), buttonAction.getListData());
                             }, 10);
                         }
-                        //TODO 其他点击操作
+                        //TODO other click actions
 
                     }
                 });

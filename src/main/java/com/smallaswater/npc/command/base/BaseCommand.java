@@ -25,9 +25,9 @@ public abstract class BaseCommand extends Command {
     }
 
     /**
-     * 判断权限
-     * @param sender 玩家
-     * @return 是否拥有权限
+     * Check permission
+     * @param sender the player
+     * @return whether the sender has permission
      */
     public boolean hasPermission(CommandSender sender) {
         return sender.hasPermission(this.getPermission());
@@ -64,14 +64,14 @@ public abstract class BaseCommand extends Command {
     }
 
     /**
-     * 发送帮助
-     * @param sender 玩家
+     * Send help
+     * @param sender the player
      * */
     public abstract void sendHelp(CommandSender sender);
 
     /**
-     * 发送UI
-     * @param player 玩家
+     * Send the UI
+     * @param player the player
      */
     public abstract void sendUI(Player player);
 

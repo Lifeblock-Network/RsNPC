@@ -185,10 +185,10 @@ public class FormHelper {
     }
 
     /**
-     * 设置npc基础配置界面
+     * Open the NPC basic configuration screen
      *
-     * @param player      玩家
-     * @param rsNpcConfig npc配置
+     * @param player      the player
+     * @param rsNpcConfig the NPC config
      */
     public static void sendAdminNpcConfig(@NotNull Player player, @NotNull RsNpcConfig rsNpcConfig) {
         Language language = RsNPC.getInstance().getLanguage();
@@ -199,7 +199,7 @@ public class FormHelper {
         Item[] armor = rsNpcConfig.getArmor();
         custom.addElement(new ElementInput(language.translateString("gui.adminNPCConfig.input.displayName"), "", rsNpcConfig.getShowName())); //0
         custom.addElement(new ElementToggle(language.translateString("gui.adminNPCConfig.toggle.displayNameAlwaysVisible"), rsNpcConfig.isNameTagAlwaysVisible())); //1
-        //物品
+        //items
         custom.addElement(new ElementInput(language.translateString("gui.adminNPCConfig.input.itemHand"), "minecraft:air:0", Utils.item2String(hand))); //2
         custom.addElement(new ElementInput(language.translateString("gui.adminNPCConfig.input.itemHelmet"), "minecraft:air:0", Utils.item2String(armor[0]))); //3
         custom.addElement(new ElementInput(language.translateString("gui.adminNPCConfig.input.itemChestplate"), "minecraft:air:0", Utils.item2String(armor[1]))); //4
@@ -243,7 +243,7 @@ public class FormHelper {
                 }
                 rsNpcConfig.setShowName(showName);
                 rsNpcConfig.setNameTagAlwaysVisible(response.getToggleResponse(1));
-                //物品
+                //items
                 rsNpcConfig.setHand(Item.get(response.getInputResponse(2)));
                 Item[] items = new Item[4];
                 items[0] = Item.get(response.getInputResponse(3));
@@ -278,7 +278,7 @@ public class FormHelper {
                 rsNpcConfig.setCanProjectilesTrigger(response.getToggleResponse(11));
                 rsNpcConfig.setEnabledDialogPages(response.getToggleResponse(12));
                 rsNpcConfig.setDialogPagesName(response.getDropdownResponse(13).elementText());
-                //保存并重载
+                //save and reload
                 rsNpcConfig.save();
                 if (rsNpcConfig.getEntityRsNpc() != null) {
                     rsNpcConfig.getEntityRsNpc().close();
@@ -293,7 +293,7 @@ public class FormHelper {
                         )
                         .noText(language.translateString("gui.adminNPCConfig.respondedWindowModal.button.false"));
                 p.sendForm(modal);
-            } catch (Exception e) { //针对漏掉的错误部分
+            } catch (Exception e) { //catch any error parts that were missed
                 p.sendMessage(language.translateString("gui.adminNPCConfig.responded.error"));
                 RsNPC.getInstance().getLogger().error(language.translateString("gui.adminNPCConfig.responded.errorConsoleMessage"), e);
             }
@@ -304,10 +304,10 @@ public class FormHelper {
     }
 
     /**
-     * 设置表情动作界面
+     * Open the NPC emote screen
      *
-     * @param player      玩家
-     * @param rsNpcConfig npc配置
+     * @param player      the player
+     * @param rsNpcConfig the NPC config
      */
     public static void sendAdminNpcConfigEmote(@NotNull Player player, @NotNull RsNpcConfig rsNpcConfig) {
         Language language = RsNPC.getInstance().getLanguage();
@@ -362,10 +362,10 @@ public class FormHelper {
     }
 
     /**
-     * 设置Npc命令界面
+     * Open the NPC command screen
      *
-     * @param player      玩家
-     * @param rsNpcConfig npc配置
+     * @param player      the player
+     * @param rsNpcConfig the NPC config
      */
     public static void sendAdminNpcConfigCommand(@NotNull Player player, @NotNull RsNpcConfig rsNpcConfig) {
         Language language = RsNPC.getInstance().getLanguage();
@@ -433,10 +433,10 @@ public class FormHelper {
     }
 
     /**
-     * 删除现有命令界面
+     * Delete-existing-command screen
      *
-     * @param player      玩家
-     * @param rsNpcConfig npc配置
+     * @param player      the player
+     * @param rsNpcConfig the NPC config
      */
     public static void sendAdminNpcConfigCommandDelete(@NotNull Player player, @NotNull RsNpcConfig rsNpcConfig) {
         Language language = RsNPC.getInstance().getLanguage();
@@ -469,10 +469,10 @@ public class FormHelper {
     }
 
     /**
-     * 管理点击消息界面
+     * Manage the click-message screen
      *
-     * @param player      玩家
-     * @param rsNpcConfig npc配置
+     * @param player      the player
+     * @param rsNpcConfig the NPC config
      */
     public static void sendAdminNpcConfigMessage(@NotNull Player player, @NotNull RsNpcConfig rsNpcConfig) {
         Language language = RsNPC.getInstance().getLanguage();
@@ -525,10 +525,10 @@ public class FormHelper {
     }
 
     /**
-     * 删除现有命令界面
+     * Delete-existing-command screen
      *
-     * @param player      玩家
-     * @param rsNpcConfig npc配置
+     * @param player      the player
+     * @param rsNpcConfig the NPC config
      */
     public static void sendAdminNpcConfigMessageDelete(@NotNull Player player, @NotNull RsNpcConfig rsNpcConfig) {
         Language language = RsNPC.getInstance().getLanguage();
@@ -587,9 +587,9 @@ public class FormHelper {
     private final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MM-dd");
 
     /**
-     * 获取随机信息
+     * Get a random message
      *
-     * @return 随机信息
+     * @return a random message
      */
     private static String getRandomMessage() {
         return switch (DATE_FORMAT.format(new Date())) {

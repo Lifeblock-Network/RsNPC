@@ -62,7 +62,7 @@ public class EntityRsNPC extends EntityHuman implements CustomEntity {
     private int pauseMoveTick = 0;
 
     /**
-     * RsNPC实体在创建时必须传入RsNPCConfig参数，保留此方法仅为兼容核心创建实体方法
+     * An RsNPC entity must be created with an RsNpcConfig argument; this constructor is kept only for compatibility with the core's entity-creation method
      */
     @Deprecated
     public EntityRsNPC(IChunk chunk, CompoundTag nbt) {
@@ -84,7 +84,7 @@ public class EntityRsNPC extends EntityHuman implements CustomEntity {
         this.getInventory().setItemInMainHand(config.getHand());
         this.getInventory().setArmorContents(config.getArmor());
 
-        //以下内容在initEntity()中执行，需要在获取到config后再执行一次
+        //the following runs in initEntity(); it needs to run again once the config is available
         if (config.isEnableCustomCollisionSize()) {
             this.actorDataMap.put(ActorDataTypes.HEIGHT, this.getHeight());
             this.actorDataMap.put(ActorDataTypes.WIDTH, this.getWidth());
@@ -143,7 +143,7 @@ public class EntityRsNPC extends EntityHuman implements CustomEntity {
         if (this.config.getWhirling() != 0) {
             this.yaw += this.config.getWhirling();
         } else {
-            //寻路
+            //pathfinding
             if (!this.config.getRoute().isEmpty() && this.pauseMoveTick <= 0) {
                 this.processMove(currentTick);
             } else {
@@ -156,7 +156,7 @@ public class EntityRsNPC extends EntityHuman implements CustomEntity {
                     this.pauseMoveTick--;
                 }
 
-                //表情
+                //emote
                 if (this.config.isEnableEmote() && !this.config.getEmoteIDs().isEmpty()) {
                     if (currentTick % 20 == 0) {
                         this.emoteSecond++;
@@ -233,7 +233,7 @@ public class EntityRsNPC extends EntityHuman implements CustomEntity {
                 }
                 this.move(this.motionX, this.motionY, this.motionZ);
 
-                //视角计算
+                //view angle calculation
                 if (currentTick % 4 == 0) {
                     if (this.nodes.size() >= 2) {
                         vector3 = this.nodes.get(1).getVector3();

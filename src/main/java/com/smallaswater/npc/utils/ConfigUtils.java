@@ -57,7 +57,7 @@ public class ConfigUtils {
 
         StringBuilder result = new StringBuilder();
 
-        //添加头部
+        //add the header
         if (description.exists(KEY_HEADER) && !description.getString(KEY_HEADER).trim().isEmpty()) {
             for (String header : description.getString(KEY_HEADER).trim().split("\n")) {
                 result.append("# ").append(header).append(System.lineSeparator());
@@ -65,16 +65,16 @@ public class ConfigUtils {
             result.append(System.lineSeparator());
         }
 
-        //添加内容
+        //add the content
         StringBuilder keyBuilder = new StringBuilder();
         try (BufferedReader in = new BufferedReader(new InputStreamReader(Files.newInputStream(file.toPath()), StandardCharsets.UTF_8))) {
             String line;
             LinkedList<String[]> path = new LinkedList<>();
-            Pattern pattern = Pattern.compile("^( *)([a-zA-Z0-9\u4e00-\u9fa5_-]+):"); //u4e00-u9fa5 中文
+            Pattern pattern = Pattern.compile("^( *)([a-zA-Z0-9\u4e00-\u9fa5_-]+):"); //u4e00-u9fa5 is the Chinese character range
             int lastIdent = 0;
             String[] last = null;
             int blankLine = 0;
-            //逐行读取并添加介绍
+            //read line by line and add the descriptions
             while ((line = in.readLine()) != null) {
                 if (clearOriginalComment && line.trim().startsWith("#")) {
                     continue;
@@ -97,19 +97,19 @@ public class ConfigUtils {
                 String ident = matcher.group(1);
                 int newIdent = ident.length();
 
-                //返回上一级
+                //go back up one level
                 if (newIdent < lastIdent) {
-                    int reduced = lastIdent - newIdent; //需要移除的空格数量
+                    int reduced = lastIdent - newIdent; //number of spaces to remove
                     int i = 0;
                     while (i < reduced && !path.isEmpty()) {
-                        if (path.pollLast()[1].length() == newIdent) { //返回到同级后 就不需要再移除上一级了
+                        if (path.pollLast()[1].length() == newIdent) { //once back at the same level, there's no need to remove the parent level
                             break;
                         }
                         i++;
                     }
                     lastIdent = lastIdent - reduced;
                 }
-                //进入下一级
+                //go down one level
                 if (newIdent > lastIdent) {
                     path.add(last);
                     lastIdent = newIdent;
@@ -121,7 +121,7 @@ public class ConfigUtils {
                     keyBuilder.append('.').append(part[0]);
                 }
                 keyBuilder.append('.').append(current);
-                String key = keyBuilder.substring(1); //忽略最开始的 . 号
+                String key = keyBuilder.substring(1); //ignore the leading . character
                 if (description.exists(key) && !description.getString(key).trim().isEmpty()) {
                     String[] comments = description.getString(key).trim().split("\n");
                     for (String comment : comments) {
@@ -133,7 +133,7 @@ public class ConfigUtils {
                 blankLine = 0;
             }
 
-            //添加尾部
+            //add the footer
             if (description.exists(KEY_FOOTER) && !description.getString(KEY_FOOTER).trim().isEmpty()) {
                 while (blankLine < 2) {
                     result.append(System.lineSeparator());

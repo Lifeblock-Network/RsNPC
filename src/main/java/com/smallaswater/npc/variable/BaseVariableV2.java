@@ -21,10 +21,10 @@ public abstract class BaseVariableV2 {
     public abstract void onUpdate(Player player, RsNpcConfig rsNpcConfig);
 
     /**
-     * 添加变量
+     * Add a variable
      *
-     * @param key 原内容
-     * @param value 新内容
+     * @param key the original content
+     * @param value the replacement content
      */
     protected final void addVariable(String key, String value){
         this.variable.put(key, value);

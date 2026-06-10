@@ -25,7 +25,7 @@ public abstract class BaseSubCommand {
     public abstract boolean canUser(CommandSender sender);
 
     /**
-     * 获取名称
+     * Get the name
      * @return string
      */
     public String getName(){
@@ -33,13 +33,13 @@ public abstract class BaseSubCommand {
     }
 
     /**
-     * 获取别名
+     * Get the aliases
      * @return string[]
      */
     public abstract String[] getAliases();
 
     /**
-     * 命令响应
+     * Command response
      * @param sender the sender      - CommandSender
      * @param args   The arrugements      - String[]
      * @param label  label..
@@ -48,8 +48,8 @@ public abstract class BaseSubCommand {
     public abstract boolean execute(CommandSender sender, String label, String[] args);
 
     /**
-     * 指令参数.
-     * @return  提示参数
+     * Command parameters.
+     * @return  the hint parameters
      * */
     public abstract CommandParameter[] getParameters();
 

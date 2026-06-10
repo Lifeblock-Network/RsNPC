@@ -61,7 +61,7 @@ public class RsNPC extends PluginBase {
     private DialogManager dialogManager;
 
     /**
-     * Npc配置文件描述
+     * Description for the NPC config file
      */
     private Config npcConfigDescription;
 
@@ -161,7 +161,7 @@ public class RsNPC extends PluginBase {
     }
 
     /**
-     * 加载语言文件
+     * Load the language file
      */
     private void loadLanguage() {
         this.setLang = this.getServer().getLanguage().getLang();
@@ -235,7 +235,7 @@ public class RsNPC extends PluginBase {
     }
 
     /**
-     * 加载内置皮肤
+     * Load the built-in skins
      */
     private void loadPrivateSkins() {
         this.skins.put("private_steve", DEFAULT_SKIN);
@@ -245,7 +245,7 @@ public class RsNPC extends PluginBase {
                 ImageInputStream imageInputStream = ImageIO.createImageInputStream(this.getResource("Skins/" + skinName + ".png"));
                 SkinBuilder skin = new SkinBuilder();
                 skin.setSkinData(ImageIO.read(imageInputStream));
-                SerializedImage.fromLegacy(skin.getSkinData().data); //检查非空和图片大小
+                SerializedImage.fromLegacy(skin.getSkinData().data); //validate non-empty data and image size
 
                 if (skinName.contains("_slim")) {
                     skin.setSkinResourcePatch(SkinBuilder.GEOMETRY_CUSTOM_SLIM);
@@ -334,7 +334,7 @@ public class RsNPC extends PluginBase {
 
             try {
                 skin.setSkinData(ImageIO.read(skinDataFile));
-                SerializedImage.fromLegacy(skin.getSkinData().data); //检查非空和图片大小
+                SerializedImage.fromLegacy(skin.getSkinData().data); //validate non-empty data and image size
 
                 if (isSlim) {
                     skin.setSkinResourcePatch(SkinBuilder.GEOMETRY_CUSTOM_SLIM);
@@ -344,7 +344,7 @@ public class RsNPC extends PluginBase {
                 return;
             }
 
-            //如果是4D皮肤
+            //if it's a 4D skin
             try {
                 File skinJsonFile = null;
                 if (file.isFile()) {
@@ -357,7 +357,7 @@ public class RsNPC extends PluginBase {
                     String geometryName = null;
 
                     String formatVersion = (String) skinJson.getOrDefault("format_version", "1.10.0");
-                    skin.setGeometryDataEngineVersion(formatVersion); //设置皮肤版本，主流格式有1.16.0,1.12.0(Blockbench新模型),1.10.0(Blockbench Legacy模型),1.8.0
+                    skin.setGeometryDataEngineVersion(formatVersion); //set the skin version; common formats are 1.16.0, 1.12.0 (new Blockbench model), 1.10.0 (Blockbench Legacy model), 1.8.0
                     switch (formatVersion) {
                         case "1.16.0":
                         case "1.12.0":
@@ -413,13 +413,13 @@ public class RsNPC extends PluginBase {
         if (!originGeometry.getString("format_version").equals("1.12.0") && !originGeometry.getString("format_version").equals("1.16.0")) {
             return "nullvalue";
         }
-        //先读取minecraft:geometry下面的项目
+        //first read the items under minecraft:geometry
         List<Map<String, Object>> geometryList = (List<Map<String, Object>>) originGeometry.get("minecraft:geometry");
-        //不知道为何这里改成了数组，所以按照示例文件读取第一项
+        //not sure why this was changed to an array, so read the first item as in the sample file
         Map<String, Object> geometryMain = geometryList.get(0);
-        //获取description内的所有
+        //get everything inside description
         Map<String, Object> descriptions = (Map<String, Object>) geometryMain.get("description");
-        return (String) descriptions.getOrDefault("identifier", "geometry.unknown"); //获取identifier
+        return (String) descriptions.getOrDefault("identifier", "geometry.unknown"); //get the identifier
     }
 
     public void reload() {

@@ -22,10 +22,10 @@ public class Utils {
     }
 
     /**
-     * 将物品对象转换为保存用字符串ID
+     * Convert an item object into the string ID used for saving
      *
-     * @param item 物品对象
-     * @return 保存用字符串ID
+     * @param item the item object
+     * @return the string ID used for saving
      */
     public static String item2String(Item item) {
         return item.getId() + ":" + item.getDamage();

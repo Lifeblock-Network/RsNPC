@@ -19,7 +19,7 @@ import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket;
 import org.cloudburstmc.protocol.bedrock.packet.SetActorLinkPacket;
 
 /**
- * 基于自定义实体功能实现的RsNPC实体
+ * An RsNPC entity implemented on top of the custom-entity feature
  *
  * @author LT_Name
  */

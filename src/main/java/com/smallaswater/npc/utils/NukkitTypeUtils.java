@@ -15,8 +15,8 @@ public class NukkitTypeUtils {
         NukkitType nukkitTypeCache;
         switch (Server.getInstance().getCodename().toLowerCase()) {
             case "powernukkitx":
-                //PNX2未修改版本号信息，使用类的区别来检查
-                //在PNX2中移除了PowerNukkitXOnly注解
+                //PNX2 did not change the version info, so use the presence of a class to tell them apart
+                //the PowerNukkitXOnly annotation was removed in PNX2
                 try {
                     Class.forName("cn.nukkit.api.PowerNukkitXOnly");
                     nukkitTypeCache = NukkitType.POWER_NUKKIT_X;

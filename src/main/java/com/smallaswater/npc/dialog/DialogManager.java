@@ -52,7 +52,7 @@ public class DialogManager {
 
     public void loadDialog(@NotNull String name) {
         Config config = new Config(this.rsNPC.getDataFolder() + "/Dialog/" + name + ".yml", Config.YAML);
-        ConfigUtils.addDescription(config, this.description); //添加描述
+        ConfigUtils.addDescription(config, this.description); //add the description
         this.dialogConfigs.put(name, new DialogPages(name, config));
     }
 
@@ -61,7 +61,7 @@ public class DialogManager {
     }
 
     public HashMap<String, DialogPages> getDialogConfigs() {
-        return new HashMap<>(dialogConfigs); //不允许直接修改源Map
+        return new HashMap<>(dialogConfigs); //do not allow modifying the source Map directly
     }
 
 }

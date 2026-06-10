@@ -60,14 +60,14 @@ public class RouteFinder {
     }
 
     /**
-     * 寻路
+     * Pathfinding
      */
     private void process() {
         this.openNodes.add(new Node(this.start));
 
         Node nowNode;
         while ((nowNode = this.openNodes.poll()) != null && Server.getInstance().isRunning()) {
-            //到达终点，保存路径
+            //reached the end point, save the path
             if (nowNode.getVector3().equals(this.getEnd())) {
                 Node parent = nowNode;
                 parent.setVector3(parent.getVector3().add(0.5, 0, 0.5));
@@ -79,7 +79,7 @@ public class RouteFinder {
                 break;
             }
 
-            //超时跳出 (60s)
+            //break out on timeout (60s)
             if (Server.getInstance().getTick() - this.startTick > 20 * 60) {
                 break;
             }
@@ -140,11 +140,11 @@ public class RouteFinder {
     }
 
     /**
-     * 检查是否可以移动到目标节点
+     * Check whether movement to the target node is possible
      *
-     * @param nowNode 当前节点
-     * @param target  目标节点
-     * @return 是否可以移动到目标节点
+     * @param nowNode the current node
+     * @param target  the target node
+     * @return whether movement to the target node is possible
      */
     private boolean canMoveTo(Node nowNode, Node target) {
         if (!this.getBlockFast(target).canPassThrough() ||
@@ -153,7 +153,7 @@ public class RouteFinder {
             return false;
         }
 
-        //跳跃检查
+        //jump check
         if (target.getVector3().getY() > nowNode.getVector3().getY() &&
                 !this.getBlockFast(nowNode.getVector3().add(0, 2, 0)).canPassThrough()) {
             return false;
@@ -181,7 +181,7 @@ public class RouteFinder {
     }
 
     /**
-     * 用粒子显示路径
+     * Show the path with particles
      */
     public void show() {
         for (Node node : this.nodes) {
@@ -194,32 +194,32 @@ public class RouteFinder {
     }
 
     /**
-     * 快速获取方块
+     * Quickly get a block
      *
-     * @param node 节点
-     * @return 方块
+     * @param node the node
+     * @return the block
      */
     public Block getBlockFast(Node node) {
         return this.getBlockFast(node.getVector3());
     }
 
     /**
-     * 快速获取方块
+     * Quickly get a block
      *
-     * @param vector3 位置
-     * @return 方块
+     * @param vector3 the position
+     * @return the block
      */
     public Block getBlockFast(Vector3 vector3) {
         return this.getBlockFast(vector3.getFloorX(), vector3.getFloorY(), vector3.getFloorZ());
     }
 
     /**
-     * 快速获取方块
+     * Quickly get a block
      *
-     * @param x 坐标x
-     * @param y 坐标y
-     * @param z 坐标z
-     * @return 方块
+     * @param x the x coordinate
+     * @param y the y coordinate
+     * @param z the z coordinate
+     * @return the block
      */
     public Block getBlockFast(int x, int y, int z) {
         if (!"Nukkit".equals(Server.getInstance().getName())) {
