@@ -63,28 +63,41 @@ public class ConfigUpdateUtils {
      * Update from RsNPC 2.0.0--2.2.2 to RsNPC-2.2.3
      */
     private static void updateRsNPC2_0_0_To_RsNPC2_2_3() {
-        File[] files = (new File(RsNPC.getInstance().getDataFolder() + "/Npcs")).listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (!file.isFile() && file.getName().endsWith(".yml")) {
-                    continue;
-                }
-                Config config = new Config(file, Config.YAML);
+        updateNpcConfigsInDir(new File(RsNPC.getInstance().getDataFolder() + "/Npcs"));
+    }
 
-                if (VersionUtils.compareVersion(config.getString(RsNpcConfig.NPC_CONFIG_VERSION_KEY, "2.0.0"), "2.2.3") >= 0) {
-                    continue;
-                }
-
-                // emoji.interval(seconds) -> emoji.interval
-                HashMap<Object, Object> map = config.get("表情动作", new HashMap<>());
-                map.put("间隔", map.getOrDefault("间隔(秒)", 10));
-                map.remove("间隔(秒)");
-                config.set("表情动作", map);
-
-                config.set(RsNpcConfig.NPC_CONFIG_VERSION_KEY, "2.2.3");
-
-                config.save();
+    /**
+     * Recursively update every .yml NPC config under the given directory.
+     * Subfolders are traversed; non-yml entries and directories are skipped.
+     */
+    private static void updateNpcConfigsInDir(File dir) {
+        File[] files = dir.listFiles();
+        if (files == null) {
+            return;
+        }
+        for (File file : files) {
+            if (file.isDirectory()) {
+                updateNpcConfigsInDir(file);
+                continue;
             }
+            if (!file.getName().endsWith(".yml")) {
+                continue;
+            }
+            Config config = new Config(file, Config.YAML);
+
+            if (VersionUtils.compareVersion(config.getString(RsNpcConfig.NPC_CONFIG_VERSION_KEY, "2.0.0"), "2.2.3") >= 0) {
+                continue;
+            }
+
+            // emoji.interval(seconds) -> emoji.interval
+            HashMap<Object, Object> map = config.get("表情动作", new HashMap<>());
+            map.put("间隔", map.getOrDefault("间隔(秒)", 10));
+            map.remove("间隔(秒)");
+            config.set("表情动作", map);
+
+            config.set(RsNpcConfig.NPC_CONFIG_VERSION_KEY, "2.2.3");
+
+            config.save();
         }
     }
 
