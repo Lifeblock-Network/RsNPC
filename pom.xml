@@ -91,7 +91,7 @@
         <dependency>
             <groupId>org.powernukkitx</groupId>
             <artifactId>server</artifactId>
-            <version>b-migration-SNAPSHOT</version>
+            <version>nightly-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
