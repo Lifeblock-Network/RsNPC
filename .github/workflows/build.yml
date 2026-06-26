@@ -35,4 +35,4 @@ jobs:
         if: success()
         with:
           name: RsNPC
-          path: target/RsNPC-2.4.4.jar
+          path: target/RsNPC-*.jar
