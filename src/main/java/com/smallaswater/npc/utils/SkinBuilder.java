@@ -9,9 +9,13 @@ import org.cloudburstmc.protocol.bedrock.data.skin.SerializedSkin;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Skin builder.
@@ -30,16 +34,45 @@ public class SkinBuilder {
     public static final String GEOMETRY_CUSTOM = convertLegacyGeometryName("geometry.humanoid.custom");
     public static final String GEOMETRY_CUSTOM_SLIM = convertLegacyGeometryName("geometry.humanoid.customSlim");
 
+    /**
+     * The built-in humanoid geometry shipped with the server (defines {@code geometry.humanoid.custom}
+     * in a format the current client accepts). The legacy {@code cn.nukkit.entity.data.Skin} used this
+     * as the default geometry data; a skin whose resource patch references {@code geometry.humanoid.custom}
+     * but supplies no geometry data of its own renders as the vanilla default on modern clients.
+     */
+    static final String GEOMETRY_HUMANOID;
+
+    static {
+        String geoData;
+        try (InputStream stream = SkinBuilder.class.getClassLoader().getResourceAsStream("gamedata/skin_geometry.json");
+             BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+            geoData = reader.lines().collect(Collectors.joining("\n", "", "\n"));
+        } catch (Exception e) {
+            geoData = "";
+        }
+        GEOMETRY_HUMANOID = geoData;
+    }
+
     private String skinId;
     private String skinResourcePatch = GEOMETRY_CUSTOM;
     @Getter
     private SerializedImage skinData;
     private String geometryName;
-    private String geometryData = "";
+    private String geometryData = GEOMETRY_HUMANOID;
     @Setter
     private String geometryDataEngineVersion = "0.0.0";
     @Setter
     private boolean trusted = true;
+    /**
+     * These two flags default to {@code true} to mirror the legacy {@code cn.nukkit.entity.data.Skin}
+     * implementation. The Cloudburst {@link SerializedSkin.Builder} defaults both to {@code false};
+     * with {@code overridingPlayerAppearance = false} the client ignores the supplied skin and falls
+     * back to its own default (Steve/Alex), which is why NPC skins would otherwise never render.
+     */
+    @Setter
+    private boolean primaryUser = true;
+    @Setter
+    private boolean overridingPlayerAppearance = true;
 
     private static String convertLegacyGeometryName(String geometryName) {
         return "{\"geometry\" : {\"default\" : \"" + geometryName + "\"}}";
@@ -137,6 +170,8 @@ public class SkinBuilder {
                 .geometryDataEngineVersion(this.geometryDataEngineVersion)
                 .premium(false)
                 .persona(false)
+                .primaryUser(this.primaryUser)
+                .overridingPlayerAppearance(this.overridingPlayerAppearance)
                 .build();
         return new Skin(serializedSkin, this.trusted);
     }
