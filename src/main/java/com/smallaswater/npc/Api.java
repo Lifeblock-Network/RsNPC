@@ -1,6 +1,6 @@
 package com.smallaswater.npc;
 
-import cn.nukkit.Player;
+import org.powernukkitx.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;

@@ -1,13 +1,13 @@
 package com.smallaswater.npc.form;
 
-import cn.nukkit.Player;
-import cn.nukkit.Server;
-import cn.nukkit.event.EventHandler;
-import cn.nukkit.event.EventPriority;
-import cn.nukkit.event.Listener;
-import cn.nukkit.event.player.PlayerServerSettingsRequestEvent;
-import cn.nukkit.event.server.PacketReceiveEvent;
-import cn.nukkit.form.window.Form;
+import org.powernukkitx.Player;
+import org.powernukkitx.Server;
+import org.powernukkitx.event.EventHandler;
+import org.powernukkitx.event.EventPriority;
+import org.powernukkitx.event.Listener;
+import org.powernukkitx.event.player.PlayerServerSettingsRequestEvent;
+import org.powernukkitx.event.server.PacketReceiveEvent;
+import org.powernukkitx.form.window.Form;
 import org.cloudburstmc.protocol.bedrock.packet.NpcRequestPacket;
 import org.cloudburstmc.protocol.bedrock.packet.ServerSettingsResponsePacket;
 import com.smallaswater.npc.RsNPC;

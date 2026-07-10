@@ -1,11 +1,11 @@
 package com.smallaswater.npc.entitys;
 
-import cn.nukkit.Player;
-import cn.nukkit.entity.data.human.Skin;
-import cn.nukkit.level.Level;
-import cn.nukkit.level.format.IChunk;
-import cn.nukkit.nbt.tag.CompoundTag;
-import cn.nukkit.registry.Registries;
+import org.powernukkitx.Player;
+import org.powernukkitx.entity.data.human.Skin;
+import org.powernukkitx.level.Level;
+import org.powernukkitx.level.format.IChunk;
+import org.powernukkitx.nbt.tag.CompoundTag;
+import org.powernukkitx.registry.Registries;
 import com.smallaswater.npc.data.RsNpcConfig;
 import com.smallaswater.npc.variable.VariableManage;
 import lombok.NonNull;

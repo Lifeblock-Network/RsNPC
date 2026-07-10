@@ -1,13 +1,13 @@
 package com.smallaswater.npc.route;
 
-import cn.nukkit.Server;
-import cn.nukkit.block.*;
-import cn.nukkit.level.Level;
-import cn.nukkit.level.ParticleEffect;
-import cn.nukkit.level.Position;
-import cn.nukkit.level.format.IChunk;
-import cn.nukkit.math.Vector3;
-import cn.nukkit.scheduler.AsyncTask;
+import org.powernukkitx.Server;
+import org.powernukkitx.block.*;
+import org.powernukkitx.level.Level;
+import org.powernukkitx.level.ParticleEffect;
+import org.powernukkitx.level.Position;
+import org.powernukkitx.level.format.IChunk;
+import org.powernukkitx.math.Vector3;
+import org.powernukkitx.scheduler.AsyncTask;
 import com.smallaswater.npc.RsNPC;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;

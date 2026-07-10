@@ -1,7 +1,7 @@
 package com.smallaswater.npc.utils;
 
-import cn.nukkit.utils.Config;
-import cn.nukkit.utils.Utils;
+import org.powernukkitx.utils.Config;
+import org.powernukkitx.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;

@@ -1,11 +1,11 @@
 package com.smallaswater.npc.command.sub;
 
-import cn.nukkit.Player;
-import cn.nukkit.Server;
-import cn.nukkit.command.CommandSender;
+import org.powernukkitx.Player;
+import org.powernukkitx.Server;
+import org.powernukkitx.command.CommandSender;
 import org.cloudburstmc.protocol.bedrock.data.command.CommandParamType;
-import cn.nukkit.command.data.CommandParameter;
-import cn.nukkit.utils.Config;
+import org.powernukkitx.command.data.CommandParameter;
+import org.powernukkitx.utils.Config;
 import com.smallaswater.npc.command.base.BaseSubCommand;
 import com.smallaswater.npc.data.RsNpcConfig;
 import com.smallaswater.npc.utils.Utils;

@@ -1,6 +1,6 @@
 package com.smallaswater.npc.variable;
 
-import cn.nukkit.Player;
+import org.powernukkitx.Player;
 import com.smallaswater.npc.data.RsNpcConfig;
 
 import java.util.Map;

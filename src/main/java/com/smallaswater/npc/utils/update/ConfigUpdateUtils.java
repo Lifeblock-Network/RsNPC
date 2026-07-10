@@ -1,8 +1,8 @@
 package com.smallaswater.npc.utils.update;
 
-import cn.nukkit.Server;
-import cn.nukkit.plugin.Plugin;
-import cn.nukkit.utils.Config;
+import org.powernukkitx.Server;
+import org.powernukkitx.plugin.Plugin;
+import org.powernukkitx.utils.Config;
 import com.smallaswater.npc.RsNPC;
 import com.smallaswater.npc.data.RsNpcConfig;
 import com.smallaswater.npc.utils.Utils;

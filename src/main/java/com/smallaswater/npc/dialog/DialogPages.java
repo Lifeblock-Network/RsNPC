@@ -1,8 +1,8 @@
 package com.smallaswater.npc.dialog;
 
-import cn.nukkit.Player;
-import cn.nukkit.Server;
-import cn.nukkit.utils.Config;
+import org.powernukkitx.Player;
+import org.powernukkitx.Server;
+import org.powernukkitx.utils.Config;
 import com.smallaswater.npc.RsNPC;
 import com.smallaswater.npc.entitys.EntityRsNPC;
 import com.smallaswater.npc.form.windows.AdvancedFormWindowDialog;

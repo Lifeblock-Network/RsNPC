@@ -1,6 +1,6 @@
 package com.smallaswater.npc.form.element;
 
-import cn.nukkit.Player;
+import org.powernukkitx.Player;
 import com.smallaswater.npc.form.response.FormResponseDialog;
 import org.jetbrains.annotations.NotNull;
 

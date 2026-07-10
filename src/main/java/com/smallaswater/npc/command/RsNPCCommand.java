@@ -1,7 +1,7 @@
 package com.smallaswater.npc.command;
 
-import cn.nukkit.Player;
-import cn.nukkit.command.CommandSender;
+import org.powernukkitx.Player;
+import org.powernukkitx.command.CommandSender;
 import com.smallaswater.npc.command.base.BaseCommand;
 import com.smallaswater.npc.command.sub.AddRouteSubCommand;
 import com.smallaswater.npc.command.sub.CreateSubCommand;

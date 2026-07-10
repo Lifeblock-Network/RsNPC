@@ -1,6 +1,6 @@
 package com.smallaswater.npc.tasks;
 
-import cn.nukkit.scheduler.PluginTask;
+import org.powernukkitx.scheduler.PluginTask;
 import com.smallaswater.npc.RsNPC;
 import com.smallaswater.npc.data.RsNpcConfig;
 

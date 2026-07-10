@@ -1,8 +1,8 @@
 package com.smallaswater.npc.utils;
 
-import cn.nukkit.Server;
-import cn.nukkit.math.NukkitMath;
-import cn.nukkit.plugin.Plugin;
+import org.powernukkitx.Server;
+import org.powernukkitx.math.NukkitMath;
+import org.powernukkitx.plugin.Plugin;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.smallaswater.npc.RsNPC;
 import lombok.NonNull;

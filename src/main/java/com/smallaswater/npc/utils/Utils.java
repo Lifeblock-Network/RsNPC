@@ -1,10 +1,10 @@
 package com.smallaswater.npc.utils;
 
-import cn.nukkit.Player;
-import cn.nukkit.Server;
-import cn.nukkit.item.Item;
-import cn.nukkit.level.Location;
-import cn.nukkit.plugin.Plugin;
+import org.powernukkitx.Player;
+import org.powernukkitx.Server;
+import org.powernukkitx.item.Item;
+import org.powernukkitx.level.Location;
+import org.powernukkitx.plugin.Plugin;
 import com.smallaswater.npc.RsNPC;
 import com.smallaswater.npc.data.RsNpcConfig;
 import com.smallaswater.npc.tasks.PlayerPermissionCheckTask;
@@ -104,7 +104,7 @@ public class Utils {
     public static String readFile(@NotNull File file) {
         String content = "";
         try {
-            content = cn.nukkit.utils.Utils.readFile(file);
+            content = org.powernukkitx.utils.Utils.readFile(file);
         } catch (IOException e) {
             RsNPC.getInstance().getLogger().error("Read File Error!", e);
         }

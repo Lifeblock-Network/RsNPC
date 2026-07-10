@@ -77,10 +77,6 @@
             <url>https://repo.opencollab.dev/maven-snapshots</url>
         </repository>
         <repository>
-            <id>repo-lanink-cn</id>
-            <url>https://repo.lanink.cn/repository/maven-public/</url>
-        </repository>
-        <repository>
             <id>PowerNukkitX-releases</id>
             <name>PowerNukkitX Repository</name>
             <url>https://repo.powernukkitx.org/releases</url>
@@ -98,12 +94,6 @@
             <groupId>org.powernukkitx.protocol</groupId>
             <artifactId>bedrock-connection</artifactId>
             <version>3.0.0.Beta7-Debug-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.smallaswater.autoupdata</groupId>
-            <artifactId>AutoUpData</artifactId>
-            <version>1.3.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

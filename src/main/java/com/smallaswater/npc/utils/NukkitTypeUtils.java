@@ -1,6 +1,6 @@
 package com.smallaswater.npc.utils;
 
-import cn.nukkit.Server;
+import org.powernukkitx.Server;
 import lombok.Getter;
 
 /**
@@ -18,7 +18,7 @@ public class NukkitTypeUtils {
                 //PNX2 did not change the version info, so use the presence of a class to tell them apart
                 //the PowerNukkitXOnly annotation was removed in PNX2
                 try {
-                    Class.forName("cn.nukkit.api.PowerNukkitXOnly");
+                    Class.forName("org.powernukkitx.api.PowerNukkitXOnly");
                     nukkitTypeCache = NukkitType.POWER_NUKKIT_X;
                 } catch (ClassNotFoundException ignored) {
                     nukkitTypeCache = NukkitType.POWER_NUKKIT_X_2;

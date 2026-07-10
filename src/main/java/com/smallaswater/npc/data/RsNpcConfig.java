@@ -1,16 +1,16 @@
 package com.smallaswater.npc.data;
 
-import cn.nukkit.Server;
-import cn.nukkit.block.Block;
-import cn.nukkit.entity.Entity;
-import cn.nukkit.entity.data.human.Skin;
-import cn.nukkit.item.Item;
-import cn.nukkit.level.Level;
-import cn.nukkit.level.Location;
-import cn.nukkit.math.Vector3;
-import cn.nukkit.nbt.tag.CompoundTag;
-import cn.nukkit.registry.Registries;
-import cn.nukkit.utils.Config;
+import org.powernukkitx.Server;
+import org.powernukkitx.block.Block;
+import org.powernukkitx.entity.Entity;
+import org.powernukkitx.entity.data.human.Skin;
+import org.powernukkitx.item.Item;
+import org.powernukkitx.level.Level;
+import org.powernukkitx.level.Location;
+import org.powernukkitx.math.Vector3;
+import org.powernukkitx.nbt.tag.CompoundTag;
+import org.powernukkitx.registry.Registries;
+import org.powernukkitx.utils.Config;
 import com.smallaswater.npc.RsNPC;
 import com.smallaswater.npc.entitys.EntityRsNPC;
 import com.smallaswater.npc.entitys.EntityRsNPCCustomEntity;

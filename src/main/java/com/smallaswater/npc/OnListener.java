@@ -1,16 +1,16 @@
 package com.smallaswater.npc;
 
-import cn.nukkit.Player;
-import cn.nukkit.entity.Entity;
-import cn.nukkit.event.EventHandler;
-import cn.nukkit.event.EventPriority;
-import cn.nukkit.event.Listener;
-import cn.nukkit.event.entity.EntityDamageByChildEntityEvent;
-import cn.nukkit.event.entity.EntityDamageByEntityEvent;
-import cn.nukkit.event.entity.EntityDamageEvent;
-import cn.nukkit.event.entity.EntityVehicleEnterEvent;
-import cn.nukkit.event.player.PlayerInteractEntityEvent;
-import cn.nukkit.event.server.PacketSendEvent;
+import org.powernukkitx.Player;
+import org.powernukkitx.entity.Entity;
+import org.powernukkitx.event.EventHandler;
+import org.powernukkitx.event.EventPriority;
+import org.powernukkitx.event.Listener;
+import org.powernukkitx.event.entity.EntityDamageByChildEntityEvent;
+import org.powernukkitx.event.entity.EntityDamageByEntityEvent;
+import org.powernukkitx.event.entity.EntityDamageEvent;
+import org.powernukkitx.event.entity.EntityVehicleEnterEvent;
+import org.powernukkitx.event.player.PlayerInteractEntityEvent;
+import org.powernukkitx.event.server.PacketSendEvent;
 import org.cloudburstmc.protocol.bedrock.packet.PlayerListPacket;
 import com.smallaswater.npc.data.RsNpcConfig;
 import com.smallaswater.npc.dialog.DialogPages;

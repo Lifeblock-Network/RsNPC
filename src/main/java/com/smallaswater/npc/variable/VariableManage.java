@@ -1,9 +1,9 @@
 package com.smallaswater.npc.variable;
 
-import cn.nukkit.IPlayer;
-import cn.nukkit.OfflinePlayer;
-import cn.nukkit.Player;
-import cn.nukkit.Server;
+import org.powernukkitx.IPlayer;
+import org.powernukkitx.OfflinePlayer;
+import org.powernukkitx.Player;
+import org.powernukkitx.Server;
 import com.smallaswater.npc.RsNPC;
 import com.smallaswater.npc.data.RsNpcConfig;
 import org.jetbrains.annotations.NotNull;

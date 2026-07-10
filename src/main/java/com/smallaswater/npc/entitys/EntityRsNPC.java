@@ -1,16 +1,16 @@
 package com.smallaswater.npc.entitys;
 
-import cn.nukkit.Player;
-import cn.nukkit.Server;
-import cn.nukkit.block.BlockLiquid;
-import cn.nukkit.entity.EntityHuman;
-import cn.nukkit.entity.custom.CustomEntity;
-import cn.nukkit.entity.custom.CustomEntityDefinition;
-import cn.nukkit.entity.data.human.Skin;
-import cn.nukkit.level.Level;
-import cn.nukkit.level.format.IChunk;
-import cn.nukkit.math.Vector3;
-import cn.nukkit.nbt.tag.CompoundTag;
+import org.powernukkitx.Player;
+import org.powernukkitx.Server;
+import org.powernukkitx.block.BlockLiquid;
+import org.powernukkitx.entity.EntityHuman;
+import org.powernukkitx.entity.custom.CustomEntity;
+import org.powernukkitx.entity.custom.CustomEntityDefinition;
+import org.powernukkitx.entity.data.human.Skin;
+import org.powernukkitx.level.Level;
+import org.powernukkitx.level.format.IChunk;
+import org.powernukkitx.math.Vector3;
+import org.powernukkitx.nbt.tag.CompoundTag;
 import org.cloudburstmc.protocol.bedrock.data.ActorLinkType;
 import org.cloudburstmc.protocol.bedrock.data.EmoteFlag;
 import org.cloudburstmc.protocol.bedrock.data.actor.ActorDataMap;

@@ -1,6 +1,6 @@
 package com.smallaswater.npc.utils;
 
-import cn.nukkit.utils.Config;
+import org.powernukkitx.utils.Config;
 
 import java.io.File;
 import java.util.HashMap;

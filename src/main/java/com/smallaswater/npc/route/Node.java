@@ -1,6 +1,6 @@
 package com.smallaswater.npc.route;
 
-import cn.nukkit.math.Vector3;
+import org.powernukkitx.math.Vector3;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

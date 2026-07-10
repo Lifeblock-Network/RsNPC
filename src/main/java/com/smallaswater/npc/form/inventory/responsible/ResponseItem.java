@@ -1,8 +1,8 @@
 package com.smallaswater.npc.form.inventory.responsible;
 
-import cn.nukkit.Player;
-import cn.nukkit.event.player.PlayerTransferItemEvent;
-import cn.nukkit.item.Item;
+import org.powernukkitx.Player;
+import org.powernukkitx.event.player.PlayerTransferItemEvent;
+import org.powernukkitx.item.Item;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 

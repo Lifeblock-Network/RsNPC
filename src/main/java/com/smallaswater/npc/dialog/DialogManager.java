@@ -1,6 +1,6 @@
 package com.smallaswater.npc.dialog;
 
-import cn.nukkit.utils.Config;
+import org.powernukkitx.utils.Config;
 import com.smallaswater.npc.RsNPC;
 import com.smallaswater.npc.utils.ConfigUtils;
 import org.jetbrains.annotations.NotNull;

@@ -1,14 +1,14 @@
 package com.smallaswater.npc;
 
-import cn.nukkit.Server;
-import cn.nukkit.entity.Entity;
-import cn.nukkit.entity.data.human.Skin;
-import cn.nukkit.level.Level;
-import cn.nukkit.plugin.PluginBase;
-import cn.nukkit.registry.RegisterException;
-import cn.nukkit.registry.Registries;
-import cn.nukkit.utils.Config;
-import cn.nukkit.utils.SerializedImage;
+import org.powernukkitx.Server;
+import org.powernukkitx.entity.Entity;
+import org.powernukkitx.entity.data.human.Skin;
+import org.powernukkitx.level.Level;
+import org.powernukkitx.plugin.PluginBase;
+import org.powernukkitx.registry.RegisterException;
+import org.powernukkitx.registry.Registries;
+import org.powernukkitx.utils.Config;
+import org.powernukkitx.utils.SerializedImage;
 import com.smallaswater.npc.command.RsNPCCommand;
 import com.smallaswater.npc.data.RsNpcConfig;
 import com.smallaswater.npc.dialog.DialogManager;
@@ -20,7 +20,6 @@ import com.smallaswater.npc.utils.update.ConfigUpdateUtils;
 import com.smallaswater.npc.variable.DefaultVariable;
 import com.smallaswater.npc.variable.VariableManage;
 import lombok.Getter;
-import updata.AutoData;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
@@ -101,16 +100,6 @@ public class RsNPC extends PluginBase {
     @Override
     public void onEnable() {
         this.loadLanguage();
-
-        try {
-            if (Server.getInstance().getPluginManager().getPlugin("AutoUpData") != null) {
-                if (AutoData.defaultUpDataByMaven(this, this.getFile(), "com.smallaswater", "RsNPC", null)) {
-                    return;
-                }
-            }
-        } catch (Throwable e) {
-            this.getLogger().warning(this.getLanguage().translateString("plugin.depend.autoupdata.error"));
-        }
 
         this.getLogger().info(this.getLanguage().translateString("plugin.load.startLoad"));
 

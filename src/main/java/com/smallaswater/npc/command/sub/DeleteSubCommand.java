@@ -1,8 +1,8 @@
 package com.smallaswater.npc.command.sub;
 
-import cn.nukkit.command.CommandSender;
+import org.powernukkitx.command.CommandSender;
 import org.cloudburstmc.protocol.bedrock.data.command.CommandParamType;
-import cn.nukkit.command.data.CommandParameter;
+import org.powernukkitx.command.data.CommandParameter;
 import com.smallaswater.npc.command.base.BaseSubCommand;
 import com.smallaswater.npc.data.RsNpcConfig;
 

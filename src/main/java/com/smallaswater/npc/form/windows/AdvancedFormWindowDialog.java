@@ -1,7 +1,7 @@
 package com.smallaswater.npc.form.windows;
 
-import cn.nukkit.Player;
-import cn.nukkit.entity.Entity;
+import org.powernukkitx.Player;
+import org.powernukkitx.entity.Entity;
 import org.cloudburstmc.protocol.bedrock.data.actor.ActorDataTypes;
 import org.cloudburstmc.protocol.bedrock.packet.NpcDialoguePacket;
 import org.cloudburstmc.protocol.bedrock.packet.NpcRequestPacket;

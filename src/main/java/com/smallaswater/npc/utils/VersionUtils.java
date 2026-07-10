@@ -1,6 +1,6 @@
 package com.smallaswater.npc.utils;
 
-import cn.nukkit.plugin.Plugin;
+import org.powernukkitx.plugin.Plugin;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 

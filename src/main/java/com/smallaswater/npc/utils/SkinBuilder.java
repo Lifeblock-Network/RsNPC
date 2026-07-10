@@ -1,7 +1,7 @@
 package com.smallaswater.npc.utils;
 
-import cn.nukkit.entity.data.human.Skin;
-import cn.nukkit.utils.SerializedImage;
+import org.powernukkitx.entity.data.human.Skin;
+import org.powernukkitx.utils.SerializedImage;
 import lombok.Getter;
 import lombok.Setter;
 import org.cloudburstmc.protocol.bedrock.data.skin.ImageData;
@@ -20,10 +20,10 @@ import java.util.stream.Collectors;
 /**
  * Skin builder.
  * <p>
- * In PNX 3.0.0, {@code cn.nukkit.entity.data.human.Skin} became an immutable wrapper
+ * In PNX 3.0.0, {@code org.powernukkitx.entity.data.human.Skin} became an immutable wrapper
  * around {@code org.cloudburstmc.protocol.bedrock.data.skin.SerializedSkin} and no longer
  * exposes the old mutable setter API. This class reproduces the parts of the legacy
- * {@code cn.nukkit.entity.data.Skin} build logic that this plugin relies on, and finally
+ * {@code org.powernukkitx.entity.data.Skin} build logic that this plugin relies on, and finally
  * produces the new Skin via {@link #build()}.
  */
 public class SkinBuilder {
@@ -36,7 +36,7 @@ public class SkinBuilder {
 
     /**
      * The built-in humanoid geometry shipped with the server (defines {@code geometry.humanoid.custom}
-     * in a format the current client accepts). The legacy {@code cn.nukkit.entity.data.Skin} used this
+     * in a format the current client accepts). The legacy {@code org.powernukkitx.entity.data.Skin} used this
      * as the default geometry data; a skin whose resource patch references {@code geometry.humanoid.custom}
      * but supplies no geometry data of its own renders as the vanilla default on modern clients.
      */
@@ -64,7 +64,7 @@ public class SkinBuilder {
     @Setter
     private boolean trusted = true;
     /**
-     * These two flags default to {@code true} to mirror the legacy {@code cn.nukkit.entity.data.Skin}
+     * These two flags default to {@code true} to mirror the legacy {@code org.powernukkitx.entity.data.Skin}
      * implementation. The Cloudburst {@link SerializedSkin.Builder} defaults both to {@code false};
      * with {@code overridingPlayerAppearance = false} the client ignores the supplied skin and falls
      * back to its own default (Steve/Alex), which is why NPC skins would otherwise never render.

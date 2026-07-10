@@ -1,8 +1,8 @@
 package com.smallaswater.npc.tasks;
 
-import cn.nukkit.Player;
-import cn.nukkit.Server;
-import cn.nukkit.scheduler.PluginTask;
+import org.powernukkitx.Player;
+import org.powernukkitx.Server;
+import org.powernukkitx.scheduler.PluginTask;
 import com.smallaswater.npc.RsNPC;
 
 import java.util.concurrent.ConcurrentHashMap;

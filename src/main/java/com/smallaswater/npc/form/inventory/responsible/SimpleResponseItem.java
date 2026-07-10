@@ -1,6 +1,6 @@
 package com.smallaswater.npc.form.inventory.responsible;
 
-import cn.nukkit.item.Item;
+import org.powernukkitx.item.Item;
 import org.jetbrains.annotations.NotNull;
 
 /**
