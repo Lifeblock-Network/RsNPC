@@ -1,10 +1,4 @@
-plugin.depend.gamecore.needReload: "MemoriesOfTime-GameCore Dependency download complete! It is strongly recommended to restart the server to ensure proper loading!"
-plugin.depend.autoupdata.error: "Plugin auto update failed! Please check the AutoUpData plugin!"
-
 plugin.load.startLoad: "RsNPC start loading"
-plugin.load.pluginBranchError: |-
-  warn! The plugin version you are using does not support this Nukkit branch!
-  Server Core: %1% | Plugin Version: %2%
 plugin.load.startLoadDialog: "Start loading conversation page data"
 plugin.load.startLoadSkin: "start loading skin"
 plugin.load.NPC.startLoad: "start loading npc"

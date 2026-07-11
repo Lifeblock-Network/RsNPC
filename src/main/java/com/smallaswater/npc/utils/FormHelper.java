@@ -534,7 +534,7 @@ public class FormHelper {
         Language language = RsNPC.getInstance().getLanguage();
 
         SimpleForm simple = new SimpleForm(language.translateString("gui.AdminNPCConfigMessageDelete.title"));
-        simple.content(language.translateString("gui.adminNPCConfigMessageDelete.content", rsNpcConfig.getName()));
+        simple.content(language.translateString("gui.AdminNPCConfigMessageDelete.content", rsNpcConfig.getName()));
 
         for (String message : rsNpcConfig.getMessages()) {
             simple.addButton(

@@ -85,7 +85,7 @@ public class CreateSubCommand extends BaseSubCommand {
             try {
                 rsNpcConfig = new RsNpcConfig(name, config);
             } catch (Exception e) {
-                sender.sendMessage("Failed to create NPC! Please check the console for error messages!");
+                sender.sendMessage(this.rsNPC.getLanguage().translateString("tips.npcCreationFailed"));
                 this.rsNPC.getLogger().error("Failed to create NPC!", e);
                 return true;
             }
