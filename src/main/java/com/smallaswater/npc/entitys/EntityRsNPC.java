@@ -133,6 +133,11 @@ public class EntityRsNPC extends EntityHuman implements CustomEntity {
     }
 
     @Override
+    public boolean canBeSavedWithChunk() {
+        return false;
+    }
+
+    @Override
     public boolean onUpdate(int currentTick) {
         if (this.config == null) {
             this.close();
