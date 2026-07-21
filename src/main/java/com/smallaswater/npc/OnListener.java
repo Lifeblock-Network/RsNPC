@@ -11,6 +11,8 @@ import org.powernukkitx.event.entity.EntityDamageEvent;
 import org.powernukkitx.event.entity.EntityVehicleEnterEvent;
 import org.powernukkitx.event.player.PlayerInteractEntityEvent;
 import org.powernukkitx.event.server.PacketSendEvent;
+import org.cloudburstmc.protocol.bedrock.data.payload.list.PlayerListAddEntry;
+import org.cloudburstmc.protocol.bedrock.data.payload.list.PlayerListEntry;
 import org.cloudburstmc.protocol.bedrock.packet.PlayerListPacket;
 import com.smallaswater.npc.data.RsNpcConfig;
 import com.smallaswater.npc.dialog.DialogPages;
@@ -100,11 +102,14 @@ public class OnListener implements Listener {
     public void onDataPacketSend(PacketSendEvent event) {
         if (event.getPacket() instanceof PlayerListPacket packet) {
             if (Api.isHideCustomSkin(event.getPlayer())) {
-                for (PlayerListPacket.Entry entry : packet.getEntries()) {
+                for (PlayerListEntry entry : packet.getEntries()) {
+                    if (!(entry instanceof PlayerListAddEntry addEntry)) {
+                        continue;
+                    }
                     for (RsNpcConfig config : this.rsNPC.getNpcs().values()) {
                         EntityRsNPC entityRsNpc = config.getEntityRsNpc();
-                        if (entityRsNpc != null && entityRsNpc.getUniqueId() == entry.getUuid()) {
-                            entry.setSkin(this.rsNPC.getSkinByName("默认皮肤").getSkin());
+                        if (entityRsNpc != null && entityRsNpc.getUniqueId() == addEntry.getUuid()) {
+                            addEntry.setSkin(this.rsNPC.getSkinByName("默认皮肤").getSkin());
                             break;
                         }
                     }

@@ -330,9 +330,9 @@ public class EntityRsNPC extends EntityHuman implements CustomEntity {
 
     protected void sendSkin(Skin oldSkin) {
         PlayerSkinPacket packet = new PlayerSkinPacket();
-        packet.setSerializedSkin(this.getSkin().getSkin());
-        packet.setNewSkinName(this.getSkin().getSkin().getSkinId());
-        packet.setOldSkinName(oldSkin != null ? oldSkin.getSkin().getSkinId() : "old");
+        packet.setSkin(this.getSkin().getSkin());
+        packet.setLocalizedNewSkinName(this.getSkin().getSkin().getSkinId());
+        packet.setLocalizedOldSkinName(oldSkin != null ? oldSkin.getSkin().getSkinId() : "old");
         packet.setUuid(this.getUniqueId());
         HashSet<Player> players = new HashSet<>(this.getViewers().values());
         if (!players.isEmpty()) {

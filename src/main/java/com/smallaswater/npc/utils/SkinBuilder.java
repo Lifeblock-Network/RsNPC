@@ -5,7 +5,6 @@ import org.powernukkitx.utils.SerializedImage;
 import lombok.Getter;
 import lombok.Setter;
 import org.cloudburstmc.protocol.bedrock.data.skin.ImageData;
-import org.cloudburstmc.protocol.bedrock.data.skin.SerializedSkin;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -21,7 +20,7 @@ import java.util.stream.Collectors;
  * Skin builder.
  * <p>
  * In PNX 3.0.0, {@code org.powernukkitx.entity.data.human.Skin} became an immutable wrapper
- * around {@code org.cloudburstmc.protocol.bedrock.data.skin.SerializedSkin} and no longer
+ * around {@code org.cloudburstmc.protocol.bedrock.data.skin.Skin} and no longer
  * exposes the old mutable setter API. This class reproduces the parts of the legacy
  * {@code org.powernukkitx.entity.data.Skin} build logic that this plugin relies on, and finally
  * produces the new Skin via {@link #build()}.
@@ -65,7 +64,7 @@ public class SkinBuilder {
     private boolean trusted = true;
     /**
      * These two flags default to {@code true} to mirror the legacy {@code org.powernukkitx.entity.data.Skin}
-     * implementation. The Cloudburst {@link SerializedSkin.Builder} defaults both to {@code false};
+     * implementation. The Cloudburst {@code Skin.Builder} defaults both to {@code false};
      * with {@code overridingPlayerAppearance = false} the client ignores the supplied skin and falls
      * back to its own default (Steve/Alex), which is why NPC skins would otherwise never render.
      */
@@ -160,7 +159,8 @@ public class SkinBuilder {
     public Skin build() {
         ImageData image = this.skinData == null ? ImageData.EMPTY :
                 ImageData.of(this.skinData.width, this.skinData.height, this.skinData.data);
-        SerializedSkin serializedSkin = SerializedSkin.builder()
+        org.cloudburstmc.protocol.bedrock.data.skin.Skin cloudburstSkin =
+                org.cloudburstmc.protocol.bedrock.data.skin.Skin.builder()
                 .skinId(getSkinId())
                 .skinResourcePatch(getSkinResourcePatch())
                 .skinData(image)
@@ -173,7 +173,7 @@ public class SkinBuilder {
                 .primaryUser(this.primaryUser)
                 .overridingPlayerAppearance(this.overridingPlayerAppearance)
                 .build();
-        return new Skin(serializedSkin, this.trusted);
+        return new Skin(cloudburstSkin, this.trusted);
     }
 
 }
