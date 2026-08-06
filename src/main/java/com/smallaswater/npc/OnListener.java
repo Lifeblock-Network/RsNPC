@@ -19,6 +19,8 @@ import com.smallaswater.npc.dialog.DialogPages;
 import com.smallaswater.npc.entitys.EntityRsNPC;
 import com.smallaswater.npc.utils.Utils;
 import com.smallaswater.npc.variable.VariableManage;
+import org.powernukkitx.entity.data.human.Skin;
+import org.powernukkitx.utils.SkinConverter;
 
 /**
  * @author lt_name
@@ -98,7 +100,7 @@ public class OnListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDataPacketSend(PacketSendEvent event) {
         if (event.getPacket() instanceof PlayerListPacket packet) {
             if (Api.isHideCustomSkin(event.getPlayer())) {
@@ -108,8 +110,12 @@ public class OnListener implements Listener {
                     }
                     for (RsNpcConfig config : this.rsNPC.getNpcs().values()) {
                         EntityRsNPC entityRsNpc = config.getEntityRsNpc();
-                        if (entityRsNpc != null && entityRsNpc.getUniqueId() == addEntry.getUuid()) {
-                            addEntry.setSkin(this.rsNPC.getSkinByName("默认皮肤").getSkin());
+                        if (entityRsNpc != null && entityRsNpc.getUniqueId().equals(addEntry.getUuid())) {
+                            Skin defaultSkin = this.rsNPC.getSkinByName("默认皮肤");
+                            if (defaultSkin != null) {
+                                addEntry.setSkin(defaultSkin.getSkin());
+                                addEntry.setSerializedSkin(SkinConverter.toSerializedSkin(defaultSkin.getSkin(), defaultSkin.isTrusted()));
+                            }
                             break;
                         }
                     }

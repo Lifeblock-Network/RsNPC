@@ -1,5 +1,11 @@
 package com.smallaswater.npc.entitys;
 
+import org.cloudburstmc.protocol.bedrock.data.*;
+import org.cloudburstmc.protocol.bedrock.data.actor.ActorDataType;
+import org.cloudburstmc.protocol.bedrock.data.command.CommandPermissionLevel;
+import org.cloudburstmc.protocol.bedrock.data.payload.abilities.SerializedAbilitiesData;
+import org.cloudburstmc.protocol.bedrock.data.payload.abilities.SerializedAbilitiesDataSerializedLayer;
+import org.cloudburstmc.protocol.bedrock.data.payload.abilities.SerializedLayer;
 import org.powernukkitx.Player;
 import org.powernukkitx.Server;
 import org.powernukkitx.block.BlockLiquid;
@@ -11,16 +17,20 @@ import org.powernukkitx.level.Level;
 import org.powernukkitx.level.format.IChunk;
 import org.powernukkitx.math.Vector3;
 import org.powernukkitx.nbt.tag.CompoundTag;
-import org.cloudburstmc.protocol.bedrock.data.ActorLinkType;
-import org.cloudburstmc.protocol.bedrock.data.EmoteFlag;
 import org.cloudburstmc.protocol.bedrock.data.actor.ActorDataMap;
 import org.cloudburstmc.protocol.bedrock.data.actor.ActorDataTypes;
 import org.cloudburstmc.protocol.bedrock.data.actor.ActorLink;
+import org.cloudburstmc.protocol.bedrock.data.inventory.ItemData;
+import org.cloudburstmc.protocol.bedrock.packet.AddPlayerPacket;
+import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket;
 import org.cloudburstmc.protocol.bedrock.packet.EmotePacket;
+import org.cloudburstmc.protocol.bedrock.packet.PlayerListPacket;
+import org.cloudburstmc.protocol.bedrock.data.payload.list.PlayerListAddEntry;
 import org.cloudburstmc.protocol.bedrock.packet.PlayerSkinPacket;
 import org.cloudburstmc.protocol.bedrock.packet.RemoveActorPacket;
 import org.cloudburstmc.protocol.bedrock.packet.SetActorDataPacket;
 import org.cloudburstmc.protocol.bedrock.packet.SetActorLinkPacket;
+import org.powernukkitx.utils.SkinConverter;
 import com.smallaswater.npc.RsNPC;
 import com.smallaswater.npc.data.RsNpcConfig;
 import com.smallaswater.npc.route.Node;
@@ -35,11 +45,6 @@ import java.util.LinkedList;
 
 public class EntityRsNPC extends EntityHuman implements CustomEntity {
 
-    /**
-     * In PNX 3.0.0, {@code registerCustomEntity(Plugin, Class)} resolves the entity
-     * definition from a static {@code definition()} method on the class; it no longer
-     * accepts a runtime id passed at registration time.
-     */
     public static CustomEntityDefinition definition() {
         return new CustomEntityDefinition("rsnpc:npc", "", false, true);
     }
@@ -288,20 +293,113 @@ public class EntityRsNPC extends EntityHuman implements CustomEntity {
     }
 
     @Override
-    public void spawnTo(Player player) {
+    public boolean setDataProperty(ActorDataType<?> type, Object value) {
+        if (type == ActorDataTypes.AIR_SUPPLY) {
+            return false;
+        }
+        return super.setDataProperty(type, value);
+    }
+
+    @Override
+    public BedrockPacket createAddEntityPacket() {
         if (this.getNetworkId() == -1) {
-            super.spawnTo(player);
-            this.sendData(player);
+            final AddPlayerPacket pk = new AddPlayerPacket();
+            pk.setUuid(this.getUniqueId());
+            String nameTag = this.getNameTag() != null ? this.getNameTag().replace("\\n", "\n") : this.getName();
+            pk.setPlayerName(nameTag);
+            pk.setTargetActorID(this.getId());
+            pk.setTargetRuntimeID(this.getId());
+            pk.setPlatformChatId("");
+            pk.setPosition(this.getPosition().toNetwork());
+            pk.setVelocity(this.getMotionVector());
+            pk.setRotation(this.getRotationVector());
+            ItemData item = (this.getInventory() != null && this.getInventory().getItemInMainHand() != null) 
+                    ? this.getInventory().getItemInMainHand().toNetwork() 
+                    : ItemData.AIR;
+            if (item == null || item.isNull() || "minecraft:air".equals(item.getDefinition().getIdentifier())) {
+                item = ItemData.AIR;
+            }
+            pk.setCarriedItem(item);
+            pk.setDeviceId("");
+            pk.setBuildPlatform(BuildPlatform.WIN_32);
+            pk.setPlayerGameType(GameType.SURVIVAL);
+            pk.setActorData(this.actorDataMap);
+
+            final SerializedAbilitiesData abilitiesData = new SerializedAbilitiesData();
+            abilitiesData.setTargetPlayerRawId(this.getId());
+            abilitiesData.setPlayerPermissions(PlayerPermissionLevel.VISITOR);
+            abilitiesData.setCommandPermissions(CommandPermissionLevel.ANY);
+
+            final SerializedAbilitiesDataSerializedLayer baseLayer =
+                    new SerializedAbilitiesDataSerializedLayer();
+            baseLayer.setSerializedLayer(SerializedLayer.BASE);
+            baseLayer.setFlySpeed(0.05f);
+            baseLayer.setVerticalFlySpeed(1.0f);
+            baseLayer.setWalkSpeed(0.1f);
+            baseLayer.getAbilitiesSet().addAll(java.util.EnumSet.of(
+                    AbilitiesIndex.BUILD,
+                    AbilitiesIndex.MINE,
+                    AbilitiesIndex.DOORS_AND_SWITCHES,
+                    AbilitiesIndex.OPEN_CONTAINERS,
+                    AbilitiesIndex.ATTACK_PLAYERS,
+                    AbilitiesIndex.ATTACK_MOBS,
+                    AbilitiesIndex.WALK_SPEED,
+                    AbilitiesIndex.FLY_SPEED
+            ));
+            baseLayer.getAbilityValues().addAll(baseLayer.getAbilitiesSet());
+            abilitiesData.getLayers().add(baseLayer);
+
+            pk.setAbilitiesData(abilitiesData);
+            return pk;
+        }
+        return super.createAddEntityPacket();
+    }
+
+    @Override
+    public void spawnTo(Player player) {
+        if (player == null) {
+            return;
+        }
+        if (!player.spawned) {
+            Server.getInstance().getScheduler().scheduleDelayedTask(RsNPC.getInstance(), () -> {
+                if (player.isOnline() && player.spawned && !this.isClosed()) {
+                    this.spawnTo(player);
+                }
+            }, 20);
+            return;
         }
 
         if (!this.hasSpawned.containsKey(player.getLoaderId()) && this.chunk != null && player.getUsedChunks().contains(Level.chunkHash(this.chunk.getX(), this.chunk.getZ()))) {
             this.hasSpawned.put(player.getLoaderId(), player);
+
+            if (this.getNetworkId() == -1) {
+                if (this.getSkin() != null) {
+                    final PlayerListPacket addPk = new PlayerListPacket();
+                    final PlayerListAddEntry addEntry = new PlayerListAddEntry();
+                    addEntry.setUuid(this.getUniqueId());
+                    addEntry.setActorUniqueID(this.getId());
+                    addEntry.setPlayerName(this.getNameTag() != null ? this.getNameTag().replace("\\n", "\n") : this.getName());
+                    addEntry.setXblXUID("");
+                    addEntry.setPlatformOnlineID("");
+                    addEntry.setBuildPlatform(org.cloudburstmc.protocol.bedrock.data.BuildPlatform.WIN_32);
+                    addEntry.setSerializedSkin(SkinConverter.toSerializedSkin(this.getSkin().getSkin(), this.getSkin().isTrusted()));
+                    addPk.getEntries().add(addEntry);
+                    player.sendPacket(addPk);
+
+                    // Remove NPC entry from player tab list after client loads the skin/entity
+                    Server.getInstance().getScheduler().scheduleDelayedTask(RsNPC.getInstance(), () -> {
+                        if (player.isOnline() && !this.isClosed()) {
+                            Server.getInstance().removePlayerListData(this.getUniqueId(), player);
+                        }
+                    }, 20);
+                }
+            }
             player.sendPacket(this.createAddEntityPacket());
-            this.sendData(player);
         }
+
         if (this.riding != null) {
             this.riding.spawnTo(player);
-            SetActorLinkPacket pkk = new SetActorLinkPacket();
+            final SetActorLinkPacket pkk = new SetActorLinkPacket();
             pkk.setLink(new ActorLink(this.riding.getId(), this.getId(), ActorLinkType.RIDING, true, false, 0f));
             player.sendPacket(pkk);
         }
@@ -309,12 +407,12 @@ public class EntityRsNPC extends EntityHuman implements CustomEntity {
 
     @Override
     public void despawnFrom(Player player) {
-        if (this.getNetworkId() == -1) {
-            super.despawnFrom(player);
-        }
-
         if (this.hasSpawned.containsKey(player.getLoaderId())) {
-            RemoveActorPacket pk = new RemoveActorPacket();
+            if (this.getNetworkId() == -1) {
+                Server.getInstance().removePlayerListData(this.getUniqueId(), player);
+            }
+
+            final RemoveActorPacket pk = new RemoveActorPacket();
             pk.setTargetActorID(this.getId());
             player.sendPacket(pk);
             this.hasSpawned.remove(player.getLoaderId());
@@ -329,12 +427,12 @@ public class EntityRsNPC extends EntityHuman implements CustomEntity {
     }
 
     protected void sendSkin(Skin oldSkin) {
-        PlayerSkinPacket packet = new PlayerSkinPacket();
-        packet.setSkin(this.getSkin().getSkin());
+        final PlayerSkinPacket packet = new PlayerSkinPacket();
+        packet.setSerializedSkin(SkinConverter.toSerializedSkin(this.getSkin().getSkin(), this.getSkin().isTrusted()));
         packet.setLocalizedNewSkinName(this.getSkin().getSkin().getSkinId());
         packet.setLocalizedOldSkinName(oldSkin != null ? oldSkin.getSkin().getSkinId() : "old");
         packet.setUuid(this.getUniqueId());
-        HashSet<Player> players = new HashSet<>(this.getViewers().values());
+        final HashSet<Player> players = new HashSet<>(this.getViewers().values());
         if (!players.isEmpty()) {
             Server.broadcastPacket(players, packet);
         }

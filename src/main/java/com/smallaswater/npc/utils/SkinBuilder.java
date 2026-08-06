@@ -31,7 +31,7 @@ public class SkinBuilder {
     public static final int SINGLE_SKIN_SIZE = 32 * 32 * PIXEL_SIZE;
 
     public static final String GEOMETRY_CUSTOM = convertLegacyGeometryName("geometry.humanoid.custom");
-    public static final String GEOMETRY_CUSTOM_SLIM = convertLegacyGeometryName("geometry.humanoid.customSlim");
+    public static final String GEOMETRY_CUSTOM_SLIM = convertLegacyGeometryName("geometry.humanoid.custom.slim");
 
     /**
      * The built-in humanoid geometry shipped with the server (defines {@code geometry.humanoid.custom}
@@ -52,28 +52,34 @@ public class SkinBuilder {
         GEOMETRY_HUMANOID = geoData;
     }
 
+    public static String getGeometryHumanoid() {
+        if (GEOMETRY_HUMANOID != null && !GEOMETRY_HUMANOID.isEmpty()) {
+            return GEOMETRY_HUMANOID;
+        }
+        try (InputStream stream = SkinBuilder.class.getClassLoader().getResourceAsStream("gamedata/skin_geometry.json");
+             BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+            return reader.lines().collect(Collectors.joining("\n", "", "\n"));
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
     private String skinId;
     private String skinResourcePatch = GEOMETRY_CUSTOM;
     @Getter
     private SerializedImage skinData;
-    private String geometryName;
-    private String geometryData = GEOMETRY_HUMANOID;
+    private String geometryName = "geometry.humanoid.custom";
+    private String geometryData = "";
     @Setter
     private String geometryDataEngineVersion = "0.0.0";
     @Setter
     private boolean trusted = true;
-    /**
-     * These two flags default to {@code true} to mirror the legacy {@code org.powernukkitx.entity.data.Skin}
-     * implementation. The Cloudburst {@code Skin.Builder} defaults both to {@code false};
-     * with {@code overridingPlayerAppearance = false} the client ignores the supplied skin and falls
-     * back to its own default (Steve/Alex), which is why NPC skins would otherwise never render.
-     */
     @Setter
-    private boolean primaryUser = true;
+    private boolean primaryUser = false;
     @Setter
-    private boolean overridingPlayerAppearance = true;
+    private boolean overridingPlayerAppearance = false;
 
-    private static String convertLegacyGeometryName(String geometryName) {
+    public static String convertLegacyGeometryName(String geometryName) {
         return "{\"geometry\" : {\"default\" : \"" + geometryName + "\"}}";
     }
 
@@ -93,7 +99,8 @@ public class SkinBuilder {
     }
 
     public void setSkinId(String skinId) {
-        if (skinId == null || skinId.trim().isEmpty()) {
+        if (skinId == null || skinId.trim().isEmpty() || skinId.length() >= 100) {
+            generateSkinId("Custom");
             return;
         }
         this.skinId = skinId;
@@ -110,6 +117,7 @@ public class SkinBuilder {
 
     public void setGeometryName(String geometryName) {
         if (geometryName == null || geometryName.trim().isEmpty()) {
+            this.geometryName = "geometry.humanoid";
             this.skinResourcePatch = GEOMETRY_CUSTOM;
             return;
         }
@@ -136,7 +144,26 @@ public class SkinBuilder {
     }
 
     public void setSkinData(byte[] skinData) {
-        this.skinData = SerializedImage.fromLegacy(skinData);
+        if (skinData == null || skinData.length < SINGLE_SKIN_SIZE) {
+            return;
+        }
+
+        int width;
+        int height;
+        if (skinData.length == SINGLE_SKIN_SIZE) {
+            width = 64;
+            height = 32;
+        } else if (skinData.length == SINGLE_SKIN_SIZE * 2 || skinData.length == SINGLE_SKIN_SIZE * 4) {
+            width = 64;
+            height = 64;
+        } else if (skinData.length == SINGLE_SKIN_SIZE * 16) {
+            width = 128;
+            height = 128;
+        } else {
+            return;
+        }
+
+        this.skinData = new SerializedImage(width, height, skinData);
     }
 
     public void setSkinData(BufferedImage image) {
@@ -144,7 +171,7 @@ public class SkinBuilder {
     }
 
     public String getSkinId() {
-        if (this.skinId == null) {
+        if (this.skinId == null || this.skinId.trim().isEmpty() || this.skinId.length() >= 100) {
             generateSkinId("Custom");
         }
         return this.skinId;
@@ -159,15 +186,32 @@ public class SkinBuilder {
     public Skin build() {
         ImageData image = this.skinData == null ? ImageData.EMPTY :
                 ImageData.of(this.skinData.width, this.skinData.height, this.skinData.data);
+
+        String effectiveGeometryName = (this.geometryName == null || this.geometryName.isEmpty())
+                ? "geometry.humanoid" : this.geometryName;
+
+        String effectiveGeometryData;
+        if (this.geometryData != null && !this.geometryData.isEmpty()) {
+            effectiveGeometryData = this.geometryData;
+        } else if ("geometry.humanoid.custom".equals(effectiveGeometryName)) {
+            effectiveGeometryData = getGeometryHumanoid();
+        } else {
+            effectiveGeometryData = "";
+        }
+
+        String effectiveEngineVersion = (effectiveGeometryData == null || effectiveGeometryData.isEmpty())
+                ? "" : ((this.geometryDataEngineVersion == null || "0.0.0".equals(this.geometryDataEngineVersion))
+                ? "1.12.0" : this.geometryDataEngineVersion);
+
         org.cloudburstmc.protocol.bedrock.data.skin.Skin cloudburstSkin =
                 org.cloudburstmc.protocol.bedrock.data.skin.Skin.builder()
                 .skinId(getSkinId())
                 .skinResourcePatch(getSkinResourcePatch())
                 .skinData(image)
                 .capeData(ImageData.EMPTY)
-                .geometryName(this.geometryName)
-                .geometryData(this.geometryData)
-                .geometryDataEngineVersion(this.geometryDataEngineVersion)
+                .geometryName(effectiveGeometryName)
+                .geometryData(effectiveGeometryData)
+                .geometryDataEngineVersion(effectiveEngineVersion)
                 .premium(false)
                 .persona(false)
                 .primaryUser(this.primaryUser)

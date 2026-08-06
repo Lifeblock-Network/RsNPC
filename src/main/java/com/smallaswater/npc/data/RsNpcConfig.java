@@ -383,11 +383,11 @@ public class RsNpcConfig {
                         .putCompound("Skin", (new CompoundTag())
                                 .putByteArray("Data", this.skin.getSkin().getSkinData().getImage())
                                 .putString("ModelId", this.skin.getSkin().getSkinId()));
-                if (this.enableCustomEntity && this.customEntityIdentifier != null) {
+                if ((this.enableCustomEntity && this.customEntityIdentifier != null) || (this.networkId > 0)) {
                     nbt.putInt("skinId", this.customEntitySkinId);
                     this.entityRsNpc = new EntityRsNPCCustomEntity(this.location.getChunk(), nbt, this);
                     EntityRsNPCCustomEntity entityRsNPC = (EntityRsNPCCustomEntity) this.entityRsNpc;
-                    entityRsNPC.setIdentifier(this.customEntityIdentifier);
+                    entityRsNPC.setIdentifier(this.customEntityIdentifier != null ? this.customEntityIdentifier : "minecraft:npc");
                 }
                 else {
                     this.entityRsNpc = new EntityRsNPC(this.location.getChunk(), nbt, this);
@@ -402,7 +402,7 @@ public class RsNpcConfig {
             if (!this.lookAtThePlayer) {
                 this.entityRsNpc.setRotation(this.location.yaw, this.location.pitch);
             }
-            this.entityRsNpc.setNameTag(this.showName /*VariableManage.stringReplace(null, this.showName, this)*/);
+            this.entityRsNpc.setNameTag(this.showName != null ? this.showName.replace("\\n", "\n") : "" /*VariableManage.stringReplace(null, this.showName, this)*/);
         }
     }
 
